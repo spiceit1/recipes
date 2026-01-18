@@ -3,7 +3,7 @@ import { api } from "../lib/api.js";
 import RecipeCard from "../components/RecipeCard.jsx";
 import RecipeFilters from "../components/RecipeFilters.jsx";
 import EmptyState from "../components/EmptyState.jsx";
-import { EMPTY_MESSAGE } from "../lib/constants.js";
+import { CATEGORIES, EMPTY_MESSAGE } from "../lib/constants.js";
 
 const Home = ({ searchQuery }) => {
   const [recipes, setRecipes] = useState([]);
@@ -44,6 +44,16 @@ const Home = ({ searchQuery }) => {
     return recipes.filter((recipe) => recipe.category === activeCategory);
   }, [recipes, activeCategory]);
 
+  const groupedRecipes = useMemo(() => {
+    if (activeCategory) {
+      return [];
+    }
+    return CATEGORIES.map((category) => ({
+      category,
+      items: recipes.filter((recipe) => recipe.category === category),
+    })).filter((group) => group.items.length);
+  }, [recipes, activeCategory]);
+
   return (
     <section className="home-page">
       <RecipeFilters
@@ -53,11 +63,26 @@ const Home = ({ searchQuery }) => {
       {isLoading ? (
         <div className="empty-state">Loading...</div>
       ) : visibleRecipes.length ? (
-        <div className="recipe-grid">
-          {visibleRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} />
-          ))}
-        </div>
+        activeCategory ? (
+          <div className="recipe-grid">
+            {visibleRecipes.map((recipe) => (
+              <RecipeCard key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
+        ) : (
+          <div className="recipe-sections">
+            {groupedRecipes.map((group) => (
+              <section key={group.category} className="recipe-section">
+                <h2>{group.category}</h2>
+                <div className="recipe-grid">
+                  {group.items.map((recipe) => (
+                    <RecipeCard key={recipe.id} recipe={recipe} />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )
       ) : (
         <EmptyState message={EMPTY_MESSAGE} />
       )}
