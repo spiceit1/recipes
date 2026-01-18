@@ -91,8 +91,9 @@ const RecipeDetail = ({ adminMode }) => {
           <ul>
             {(recipe.ingredients || []).map((item) => (
               <li key={item.id}>
-                {scaleAmount(item.amount, scale)} {item.measurement?.name}{" "}
-                {item.ingredient?.name}
+                {`${scaleAmount(item.amount, scale)} ${
+                  item.measurement?.name ? `${item.measurement.name} ` : ""
+                }${item.ingredient?.name || ""}`.trim()}
               </li>
             ))}
           </ul>

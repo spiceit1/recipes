@@ -15,9 +15,19 @@ export const handler = async (event) => {
 
   if (method === "POST") {
     const payload = JSON.parse(event.body || "{}");
+    const name = (payload.name || "").trim();
+    if (!name) {
+      return errorResponse(400, "Missing name");
+    }
+    const existing = await prisma.ingredient.findFirst({
+      where: { name: { equals: name, mode: "insensitive" } },
+    });
+    if (existing) {
+      return errorResponse(409, "Already exists");
+    }
     const ingredient = await prisma.ingredient.create({
       data: {
-        name: payload.name,
+        name,
         caloriesPerUnit: Number(payload.caloriesPerUnit || 0),
       },
     });

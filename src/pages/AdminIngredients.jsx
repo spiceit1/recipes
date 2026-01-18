@@ -4,7 +4,10 @@ import EmptyState from "../components/EmptyState.jsx";
 
 const AdminIngredients = () => {
   const [ingredients, setIngredients] = useState([]);
-  const [form, setForm] = useState({ name: "", caloriesPerUnit: "" });
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
+  const [editingId, setEditingId] = useState("");
+  const [editingName, setEditingName] = useState("");
 
   const load = async () => {
     const data = await api.getIngredients();
@@ -16,15 +19,25 @@ const AdminIngredients = () => {
   }, []);
 
   const handleCreate = async () => {
-    if (!form.name) {
+    const trimmed = name.trim();
+    if (!trimmed) {
       return;
     }
-    await api.createIngredient({
-      name: form.name,
-      caloriesPerUnit: Number(form.caloriesPerUnit || 0),
-    });
-    setForm({ name: "", caloriesPerUnit: "" });
-    load();
+    setMessage("");
+    try {
+      await api.createIngredient({
+        name: trimmed,
+        caloriesPerUnit: 0,
+      });
+      setName("");
+      load();
+    } catch (error) {
+      if (error.message?.toLowerCase().includes("already exists")) {
+        setMessage("Already exists");
+        return;
+      }
+      setMessage("Unable to add ingredient");
+    }
   };
 
   const handleUpdate = async (id, field, value) => {
@@ -34,13 +47,42 @@ const AdminIngredients = () => {
     }
     await api.updateIngredient(id, {
       name: field === "name" ? value : current.name,
-      caloriesPerUnit:
-        field === "caloriesPerUnit"
-          ? Number(value || 0)
-          : current.caloriesPerUnit,
+      caloriesPerUnit: current.caloriesPerUnit,
     });
     load();
   };
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setEditingName(item.name);
+    setMessage("");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) {
+      return;
+    }
+    const trimmed = editingName.trim();
+    if (!trimmed) {
+      return;
+    }
+    try {
+      await handleUpdate(editingId, "name", trimmed);
+      setEditingId("");
+      setEditingName("");
+    } catch (error) {
+      if (error.message?.toLowerCase().includes("already exists")) {
+        setMessage("Already exists");
+        return;
+      }
+      setMessage("Unable to update ingredient");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId("");
+    setEditingName("");
+  };
+
 
   const handleDelete = async (id) => {
     await api.deleteIngredient(id);
@@ -54,25 +96,14 @@ const AdminIngredients = () => {
         <div className="inline-row">
           <input
             type="text"
-            value={form.name}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, name: event.target.value }))
-            }
-          />
-          <input
-            type="number"
-            value={form.caloriesPerUnit}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                caloriesPerUnit: event.target.value,
-              }))
-            }
+            value={name}
+            onChange={(event) => setName(event.target.value)}
           />
           <button type="button" onClick={handleCreate}>
             Add
           </button>
         </div>
+        {message ? <div className="inline-message">{message}</div> : null}
       </div>
       {!ingredients.length ? (
         <EmptyState message="No ingredients yet" />
@@ -80,39 +111,33 @@ const AdminIngredients = () => {
         <div className="admin-list">
           {ingredients.map((item) => (
             <div key={item.id} className="admin-card">
-              <input
-                type="text"
-                value={item.name}
-                onChange={(event) =>
-                  setIngredients((prev) =>
-                    prev.map((ingredient) =>
-                      ingredient.id === item.id
-                        ? { ...ingredient, name: event.target.value }
-                        : ingredient
-                    )
-                  )
-                }
-                onBlur={(event) => handleUpdate(item.id, "name", event.target.value)}
-              />
-              <input
-                type="number"
-                value={item.caloriesPerUnit}
-                onChange={(event) =>
-                  setIngredients((prev) =>
-                    prev.map((ingredient) =>
-                      ingredient.id === item.id
-                        ? { ...ingredient, caloriesPerUnit: event.target.value }
-                        : ingredient
-                    )
-                  )
-                }
-                onBlur={(event) =>
-                  handleUpdate(item.id, "caloriesPerUnit", event.target.value)
-                }
-              />
-              <button type="button" onClick={() => handleDelete(item.id)}>
-                Delete
-              </button>
+              {editingId === item.id ? (
+                <div className="inline-row">
+                  <input
+                    type="text"
+                    value={editingName}
+                    onChange={(event) => setEditingName(event.target.value)}
+                  />
+                  <button type="button" onClick={handleSaveEdit}>
+                    Save
+                  </button>
+                  <button type="button" onClick={handleCancelEdit}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="admin-text">{item.name}</div>
+                  <div className="inline-row">
+                    <button type="button" onClick={() => handleEdit(item)}>
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => handleDelete(item.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>

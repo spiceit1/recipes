@@ -12,11 +12,10 @@ const ClipboardExporter = ({ recipe }) => {
       `Calories: ${recipe.calories}`,
       "",
       "Ingredients:",
-      ...ingredients.map(
-        (item) =>
-          `- ${item.amount} ${item.measurement?.name || ""} ${
-            item.ingredient?.name || ""
-          }`.trim()
+      ...ingredients.map((item) =>
+        `- ${item.amount} ${
+          item.measurement?.name ? `${item.measurement.name} ` : ""
+        }${item.ingredient?.name || ""}`.trim()
       ),
       "",
       "Instructions:",

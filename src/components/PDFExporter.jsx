@@ -42,9 +42,9 @@ const PDFExporter = ({ recipe }) => {
     doc.setFontSize(11);
     (recipe.ingredients || []).forEach((item) => {
       doc.text(
-        `- ${item.amount} ${item.measurement?.name || ""} ${
-          item.ingredient?.name || ""
-        }`.trim(),
+        `- ${item.amount} ${
+          item.measurement?.name ? `${item.measurement.name} ` : ""
+        }${item.ingredient?.name || ""}`.trim(),
         14,
         y
       );

@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api.js";
 import EmptyState from "../components/EmptyState.jsx";
 
 const AdminDashboard = () => {
   const [recipes, setRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const load = async () => {
     setIsLoading(true);
@@ -43,13 +45,28 @@ const AdminDashboard = () => {
       <h1>Recipes</h1>
       <div className="admin-list">
         {recipes.map((recipe) => (
-          <div key={recipe.id} className="admin-card">
-            <div>
-              <div className="admin-title">{recipe.name}</div>
-              <div className="tiny-text">{recipe.category}</div>
+          <div key={recipe.id} className="admin-card admin-recipe-card">
+            <div className="admin-recipe-left">
+              <div className="admin-thumb">
+                {recipe.imageUrl ? (
+                  <img src={recipe.imageUrl} alt={recipe.name} loading="lazy" />
+                ) : (
+                  <div className="image-placeholder" />
+                )}
+              </div>
+              <div>
+                <div className="admin-title">{recipe.name}</div>
+                <div className="tiny-text">{recipe.category}</div>
+              </div>
             </div>
             <div className="admin-actions">
-              <a href={`/admin/recipes/${recipe.id}`}>Edit</a>
+              <button
+                type="button"
+                className="admin-action"
+                onClick={() => navigate(`/admin/recipes/${recipe.id}`)}
+              >
+                Edit
+              </button>
               <button type="button" onClick={() => handleDelete(recipe.id)}>
                 Delete
               </button>

@@ -71,7 +71,7 @@ export const handler = async (event) => {
         ingredients: {
           create: (payload.ingredients || []).map((item) => ({
             ingredientId: item.ingredientId,
-            measurementId: item.measurementId,
+            measurementId: item.measurementId || null,
             amount: Number(item.amount || 0),
           })),
         },
@@ -112,7 +112,7 @@ export const handler = async (event) => {
         ingredients: {
           create: (payload.ingredients || []).map((item) => ({
             ingredientId: item.ingredientId,
-            measurementId: item.measurementId,
+            measurementId: item.measurementId || null,
             amount: Number(item.amount || 0),
           })),
         },

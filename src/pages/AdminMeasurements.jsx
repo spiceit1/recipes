@@ -4,7 +4,10 @@ import EmptyState from "../components/EmptyState.jsx";
 
 const AdminMeasurements = () => {
   const [measurements, setMeasurements] = useState([]);
-  const [form, setForm] = useState({ name: "", conversionFactor: "" });
+  const [name, setName] = useState("");
+  const [message, setMessage] = useState("");
+  const [editingId, setEditingId] = useState("");
+  const [editingName, setEditingName] = useState("");
 
   const load = async () => {
     const data = await api.getMeasurements();
@@ -16,15 +19,25 @@ const AdminMeasurements = () => {
   }, []);
 
   const handleCreate = async () => {
-    if (!form.name) {
+    const trimmed = name.trim();
+    if (!trimmed) {
       return;
     }
-    await api.createMeasurement({
-      name: form.name,
-      conversionFactor: Number(form.conversionFactor || 0),
-    });
-    setForm({ name: "", conversionFactor: "" });
-    load();
+    setMessage("");
+    try {
+      await api.createMeasurement({
+        name: trimmed,
+        conversionFactor: 0,
+      });
+      setName("");
+      load();
+    } catch (error) {
+      if (error.message?.toLowerCase().includes("already exists")) {
+        setMessage("Already exists");
+        return;
+      }
+      setMessage("Unable to add measurement");
+    }
   };
 
   const handleUpdate = async (id, field, value) => {
@@ -34,13 +47,42 @@ const AdminMeasurements = () => {
     }
     await api.updateMeasurement(id, {
       name: field === "name" ? value : current.name,
-      conversionFactor:
-        field === "conversionFactor"
-          ? Number(value || 0)
-          : current.conversionFactor,
+      conversionFactor: current.conversionFactor,
     });
     load();
   };
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setEditingName(item.name);
+    setMessage("");
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId) {
+      return;
+    }
+    const trimmed = editingName.trim();
+    if (!trimmed) {
+      return;
+    }
+    try {
+      await handleUpdate(editingId, "name", trimmed);
+      setEditingId("");
+      setEditingName("");
+    } catch (error) {
+      if (error.message?.toLowerCase().includes("already exists")) {
+        setMessage("Already exists");
+        return;
+      }
+      setMessage("Unable to update measurement");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId("");
+    setEditingName("");
+  };
+
 
   const handleDelete = async (id) => {
     await api.deleteMeasurement(id);
@@ -54,25 +96,14 @@ const AdminMeasurements = () => {
         <div className="inline-row">
           <input
             type="text"
-            value={form.name}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, name: event.target.value }))
-            }
-          />
-          <input
-            type="number"
-            value={form.conversionFactor}
-            onChange={(event) =>
-              setForm((prev) => ({
-                ...prev,
-                conversionFactor: event.target.value,
-              }))
-            }
+            value={name}
+            onChange={(event) => setName(event.target.value)}
           />
           <button type="button" onClick={handleCreate}>
             Add
           </button>
         </div>
+        {message ? <div className="inline-message">{message}</div> : null}
       </div>
       {!measurements.length ? (
         <EmptyState message="No measurements yet" />
@@ -80,39 +111,33 @@ const AdminMeasurements = () => {
         <div className="admin-list">
           {measurements.map((item) => (
             <div key={item.id} className="admin-card">
-              <input
-                type="text"
-                value={item.name}
-                onChange={(event) =>
-                  setMeasurements((prev) =>
-                    prev.map((measurement) =>
-                      measurement.id === item.id
-                        ? { ...measurement, name: event.target.value }
-                        : measurement
-                    )
-                  )
-                }
-                onBlur={(event) => handleUpdate(item.id, "name", event.target.value)}
-              />
-              <input
-                type="number"
-                value={item.conversionFactor}
-                onChange={(event) =>
-                  setMeasurements((prev) =>
-                    prev.map((measurement) =>
-                      measurement.id === item.id
-                        ? { ...measurement, conversionFactor: event.target.value }
-                        : measurement
-                    )
-                  )
-                }
-                onBlur={(event) =>
-                  handleUpdate(item.id, "conversionFactor", event.target.value)
-                }
-              />
-              <button type="button" onClick={() => handleDelete(item.id)}>
-                Delete
-              </button>
+              {editingId === item.id ? (
+                <div className="inline-row">
+                  <input
+                    type="text"
+                    value={editingName}
+                    onChange={(event) => setEditingName(event.target.value)}
+                  />
+                  <button type="button" onClick={handleSaveEdit}>
+                    Save
+                  </button>
+                  <button type="button" onClick={handleCancelEdit}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="admin-text">{item.name}</div>
+                  <div className="inline-row">
+                    <button type="button" onClick={() => handleEdit(item)}>
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => handleDelete(item.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>

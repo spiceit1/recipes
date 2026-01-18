@@ -47,11 +47,11 @@ model RecipeIngredient {
   id            String      @id @default(cuid())
   recipeId      String
   ingredientId  String
-  measurementId String
+  measurementId String?
   amount        Float
   recipe        Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
-  measurement   Measurement @relation(fields: [measurementId], references: [id], onDelete: Cascade)
+  measurement   Measurement? @relation(fields: [measurementId], references: [id], onDelete: SetNull)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 }

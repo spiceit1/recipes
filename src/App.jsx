@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import RecipeDetail from "./pages/RecipeDetail.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import AdminRecipeForm from "./pages/AdminRecipeForm.jsx";
+import AdminRecipes from "./pages/AdminRecipes.jsx";
 import AdminIngredients from "./pages/AdminIngredients.jsx";
 import AdminMeasurements from "./pages/AdminMeasurements.jsx";
 import AdminComments from "./pages/AdminComments.jsx";
@@ -14,15 +13,45 @@ import { getAdminMode, setAdminMode } from "./lib/storage.js";
 const App = () => {
   const [adminMode, setAdminModeState] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [adminView, setAdminView] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    setAdminModeState(getAdminMode());
+    const enabled = getAdminMode();
+    setAdminModeState(enabled);
+    setAdminView(enabled);
   }, []);
 
   const handleAdminEnabled = () => {
     setAdminMode(true);
     setAdminModeState(true);
+    setAdminView(true);
   };
+
+  const handleAdminExit = () => {
+    setAdminMode(false);
+    setAdminModeState(false);
+    setAdminView(false);
+    navigate("/");
+  };
+
+  const handleToggleView = () => {
+    setAdminView((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (!adminMode) {
+      return;
+    }
+    const isAdminRoute = location.pathname.startsWith("/admin");
+    if (adminView && !isAdminRoute) {
+      navigate("/admin");
+    }
+    if (!adminView && isAdminRoute) {
+      navigate("/");
+    }
+  }, [adminMode, adminView, location.pathname, navigate]);
 
   const adminLayoutValue = useMemo(
     () => ({ adminMode, onAdminEnabled: handleAdminEnabled }),
@@ -39,28 +68,28 @@ const App = () => {
         />
         {adminMode ? (
           <div className="admin-entry">
-            <Link className="admin-button" to="/admin">
-              Admin
-            </Link>
+            <button type="button" className="admin-toggle" onClick={handleToggleView}>
+              {adminView ? "Customer View" : "Admin View"}
+            </button>
+            <button type="button" className="admin-button" onClick={handleAdminExit}>
+              Exit Admin
+            </button>
           </div>
         ) : null}
       </header>
       <main className="page-wrapper">
         <Routes>
-          <Route
-            path="/"
-            element={<Home adminMode={adminMode} searchQuery={searchQuery} />}
-          />
+          <Route path="/" element={<Home searchQuery={searchQuery} />} />
           <Route
             path="/recipe/:id"
-            element={<RecipeDetail adminMode={adminMode} />}
+            element={<RecipeDetail adminMode={adminView} />}
           />
           <Route
             path="/admin"
             element={
-              adminMode ? (
+              adminMode && adminView ? (
                 <AdminLayout value={adminLayoutValue}>
-                  <AdminDashboard />
+                  <AdminRecipes />
                 </AdminLayout>
               ) : (
                 <Navigate to="/" />
@@ -69,32 +98,16 @@ const App = () => {
           />
           <Route
             path="/admin/recipes/new"
-            element={
-              adminMode ? (
-                <AdminLayout value={adminLayoutValue}>
-                  <AdminRecipeForm />
-                </AdminLayout>
-              ) : (
-                <Navigate to="/" />
-              )
-            }
+            element={<Navigate to="/admin" />}
           />
           <Route
             path="/admin/recipes/:id"
-            element={
-              adminMode ? (
-                <AdminLayout value={adminLayoutValue}>
-                  <AdminRecipeForm />
-                </AdminLayout>
-              ) : (
-                <Navigate to="/" />
-              )
-            }
+            element={<Navigate to="/admin" />}
           />
           <Route
             path="/admin/ingredients"
             element={
-              adminMode ? (
+              adminMode && adminView ? (
                 <AdminLayout value={adminLayoutValue}>
                   <AdminIngredients />
                 </AdminLayout>
@@ -106,7 +119,7 @@ const App = () => {
           <Route
             path="/admin/measurements"
             element={
-              adminMode ? (
+              adminMode && adminView ? (
                 <AdminLayout value={adminLayoutValue}>
                   <AdminMeasurements />
                 </AdminLayout>
@@ -118,7 +131,7 @@ const App = () => {
           <Route
             path="/admin/comments"
             element={
-              adminMode ? (
+              adminMode && adminView ? (
                 <AdminLayout value={adminLayoutValue}>
                   <AdminComments />
                 </AdminLayout>
