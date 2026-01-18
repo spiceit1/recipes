@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import RecipeDetail from "./pages/RecipeDetail.jsx";
 import AdminRecipes from "./pages/AdminRecipes.jsx";
@@ -61,7 +68,9 @@ const App = () => {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <div className="site-title">Recipes</div>
+        <Link className="site-title" to="/">
+          <img src="/alex-logo.jpg" alt="Alex's Recipes" />
+        </Link>
         <SearchBar
           onAdminEnabled={handleAdminEnabled}
           onSearch={(value) => setSearchQuery(value)}

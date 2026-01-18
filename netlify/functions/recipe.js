@@ -7,7 +7,9 @@ const calculateFromPayload = async (prisma, items) => {
     return 0;
   }
   const ingredientIds = items.map((item) => item.ingredientId);
-  const measurementIds = items.map((item) => item.measurementId);
+  const measurementIds = items
+    .map((item) => item.measurementId)
+    .filter((id) => Boolean(id));
   const [ingredients, measurements] = await Promise.all([
     prisma.ingredient.findMany({ where: { id: { in: ingredientIds } } }),
     prisma.measurement.findMany({ where: { id: { in: measurementIds } } }),
