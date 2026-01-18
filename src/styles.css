@@ -68,11 +68,17 @@ textarea {
   color: #fff;
 }
 
-.admin-nav {
+.admin-entry {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  font-size: 0.9rem;
+  align-items: center;
+}
+
+.admin-button {
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  background: #1d1d1d;
+  color: #fff;
+  font-weight: 600;
 }
 
 .page-wrapper {

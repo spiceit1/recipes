@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Link, Navigate, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import RecipeDetail from "./pages/RecipeDetail.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
@@ -38,13 +38,11 @@ const App = () => {
           onSearch={(value) => setSearchQuery(value)}
         />
         {adminMode ? (
-          <nav className="admin-nav">
-            <a href="/admin">Dashboard</a>
-            <a href="/admin/recipes/new">Add Recipe</a>
-            <a href="/admin/ingredients">Ingredients</a>
-            <a href="/admin/measurements">Measurements</a>
-            <a href="/admin/comments">Comments</a>
-          </nav>
+          <div className="admin-entry">
+            <Link className="admin-button" to="/admin">
+              Admin
+            </Link>
+          </div>
         ) : null}
       </header>
       <main className="page-wrapper">
