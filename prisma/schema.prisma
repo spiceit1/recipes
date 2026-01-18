@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Recipe {
+  id         String             @id @default(cuid())
+  name       String
+  category   String
+  prepTime   Int
+  cookTime   Int
+  totalTime  Int
+  serves     Int
+  calories   Int
+  imageUrl   String?
+  published  Boolean            @default(false)
+  ingredients RecipeIngredient[]
+  steps      InstructionStep[]
+  comments   Comment[]
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+}
+
+model Ingredient {
+  id              String             @id @default(cuid())
+  name            String             @unique
+  caloriesPerUnit Float
+  recipeIngredients RecipeIngredient[]
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model Measurement {
+  id               String             @id @default(cuid())
+  name             String             @unique
+  conversionFactor Float
+  recipeIngredients RecipeIngredient[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+}
+
+model RecipeIngredient {
+  id            String      @id @default(cuid())
+  recipeId      String
+  ingredientId  String
+  measurementId String
+  amount        Float
+  recipe        Recipe      @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  measurement   Measurement @relation(fields: [measurementId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model InstructionStep {
+  id         String   @id @default(cuid())
+  recipeId   String
+  stepNumber Int
+  text       String
+  imageUrl   String?
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  recipeId  String
+  name      String
+  rating    Int
+  comment   String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
