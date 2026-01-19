@@ -106,6 +106,7 @@ textarea {
 .admin-entry {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .admin-button {
@@ -172,6 +173,17 @@ textarea {
   display: grid;
   gap: 2rem;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.recipe-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.recipe-section h2 {
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
 }
 
 .recipe-card {
@@ -296,6 +308,34 @@ textarea {
   max-width: 520px;
 }
 
+.rating-picker {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.rating-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.rating-stars .star {
+  border: none;
+  background: transparent;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #9aa3ad;
+  padding: 0;
+}
+
+.rating-stars .star.active {
+  color: #2f5fff;
+}
+
 .admin-page {
   display: flex;
   flex-direction: column;
@@ -347,6 +387,12 @@ textarea {
 
 .admin-nav a:hover {
   background: #f1f1f1;
+  border-color: #1d1d1d;
+}
+
+.admin-nav a.active {
+  background: #1d1d1d;
+  color: #fff;
   border-color: #1d1d1d;
 }
 

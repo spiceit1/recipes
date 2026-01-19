@@ -11,7 +11,12 @@ const RecipeDetail = ({ adminMode }) => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [scale, setScale] = useState(1);
-  const [comment, setComment] = useState({ name: "", rating: 5, text: "" });
+  const [comment, setComment] = useState({
+    name: "",
+    email: "",
+    rating: 0,
+    text: "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -36,7 +41,7 @@ const RecipeDetail = ({ adminMode }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!comment.name || !comment.text) {
+    if (!comment.name || !comment.email || !comment.rating) {
       return;
     }
     setIsSubmitting(true);
@@ -47,7 +52,7 @@ const RecipeDetail = ({ adminMode }) => {
         rating: Number(comment.rating),
         comment: comment.text,
       });
-      setComment({ name: "", rating: 5, text: "" });
+      setComment({ name: "", email: "", rating: 0, text: "" });
     } finally {
       setIsSubmitting(false);
     }
@@ -117,26 +122,53 @@ const RecipeDetail = ({ adminMode }) => {
 
       <form className="comment-form" onSubmit={handleSubmit}>
         <h3>Leave a comment</h3>
+        <label className="field-label" htmlFor="comment-name">
+          Name (required)
+        </label>
         <input
           type="text"
+          id="comment-name"
+          required
           value={comment.name}
           onChange={(event) =>
             setComment((prev) => ({ ...prev, name: event.target.value }))
           }
         />
-        <select
-          value={comment.rating}
+        <label className="field-label" htmlFor="comment-email">
+          Email (required)
+        </label>
+        <input
+          type="email"
+          id="comment-email"
+          required
+          value={comment.email}
           onChange={(event) =>
-            setComment((prev) => ({ ...prev, rating: event.target.value }))
+            setComment((prev) => ({ ...prev, email: event.target.value }))
           }
-        >
-          {[1, 2, 3, 4, 5].map((rating) => (
-            <option key={rating} value={rating}>
-              {rating}
-            </option>
-          ))}
-        </select>
+        />
+        <div className="rating-picker" role="radiogroup" aria-label="Tap to rate">
+          <div className="rating-label">Rating (required)</div>
+          <div className="rating-stars">
+            {[1, 2, 3, 4, 5].map((rating) => (
+              <button
+                key={rating}
+                type="button"
+                className={comment.rating >= rating ? "star active" : "star"}
+                onClick={() =>
+                  setComment((prev) => ({ ...prev, rating }))
+                }
+                aria-pressed={comment.rating >= rating}
+              >
+                ★
+              </button>
+            ))}
+          </div>
+        </div>
+        <label className="field-label" htmlFor="comment-text">
+          Comment (optional)
+        </label>
         <textarea
+          id="comment-text"
           value={comment.text}
           onChange={(event) =>
             setComment((prev) => ({ ...prev, text: event.target.value }))

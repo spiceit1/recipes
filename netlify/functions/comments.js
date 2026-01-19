@@ -16,10 +16,14 @@ export const handler = async (event) => {
 
   if (method === "POST") {
     const payload = JSON.parse(event.body || "{}");
+    if (!payload.name || !payload.email || !payload.rating) {
+      return errorResponse(400, "Missing required fields");
+    }
     const comment = await prisma.comment.create({
       data: {
         recipeId: payload.recipeId,
         name: payload.name,
+        email: payload.email,
         rating: Number(payload.rating || 0),
         comment: payload.comment,
       },

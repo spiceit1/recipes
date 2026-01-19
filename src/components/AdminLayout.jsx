@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const AdminLayout = ({ children }) => (
   <section className="admin-layout">
@@ -7,10 +7,12 @@ const AdminLayout = ({ children }) => (
         <h1>Admin</h1>
       </div>
       <nav className="admin-nav">
-        <Link to="/admin">Recipes</Link>
-        <Link to="/admin/ingredients">Ingredients</Link>
-        <Link to="/admin/measurements">Measurements</Link>
-        <Link to="/admin/comments">Comments</Link>
+        <NavLink to="/admin" end>
+          Recipes
+        </NavLink>
+        <NavLink to="/admin/ingredients">Ingredients</NavLink>
+        <NavLink to="/admin/measurements">Measurements</NavLink>
+        <NavLink to="/admin/comments">Comments</NavLink>
       </nav>
     </div>
     {children}
