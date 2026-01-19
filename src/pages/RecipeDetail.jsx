@@ -87,7 +87,6 @@ const RecipeDetail = ({ adminMode }) => {
             <span>Cook {recipe.cookTime} min</span>
             <span>Total {totalTime} min</span>
             <span>Serves {recipe.serves}</span>
-            <span>{recipe.calories} cal</span>
           </div>
           <div className="recipe-actions">
             <IngredientScaler scale={scale} onChange={setScale} />

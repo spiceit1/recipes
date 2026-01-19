@@ -1,30 +1,5 @@
 import { getPrisma } from "./_utils/prisma.js";
-import { calculateCalories } from "./_utils/calcCalories.js";
 import { errorResponse, jsonResponse } from "./_utils/response.js";
-
-const calculateFromPayload = async (prisma, items) => {
-  if (!items?.length) {
-    return 0;
-  }
-  const ingredientIds = items.map((item) => item.ingredientId);
-  const measurementIds = items
-    .map((item) => item.measurementId)
-    .filter((id) => Boolean(id));
-  const [ingredients, measurements] = await Promise.all([
-    prisma.ingredient.findMany({ where: { id: { in: ingredientIds } } }),
-    prisma.measurement.findMany({ where: { id: { in: measurementIds } } }),
-  ]);
-  const ingredientMap = new Map(ingredients.map((item) => [item.id, item]));
-  const measurementMap = new Map(measurements.map((item) => [item.id, item]));
-
-  const enriched = items.map((item) => ({
-    ...item,
-    ingredient: ingredientMap.get(item.ingredientId),
-    measurement: measurementMap.get(item.measurementId),
-  }));
-
-  return calculateCalories(enriched);
-};
 
 export const handler = async (event) => {
   const prisma = getPrisma();
@@ -58,7 +33,6 @@ export const handler = async (event) => {
   if (method === "POST") {
     const payload = JSON.parse(event.body || "{}");
     const totalTime = Number(payload.prepTime || 0) + Number(payload.cookTime || 0);
-    const calories = await calculateFromPayload(prisma, payload.ingredients || []);
 
     const recipe = await prisma.recipe.create({
       data: {
@@ -68,7 +42,6 @@ export const handler = async (event) => {
         cookTime: Number(payload.cookTime || 0),
         totalTime,
         serves: Number(payload.serves || 1),
-        calories: Math.round(calories),
         imageUrl: payload.imageUrl || null,
         ingredients: {
           create: (payload.ingredients || []).map((item) => ({
@@ -95,7 +68,6 @@ export const handler = async (event) => {
     }
     const payload = JSON.parse(event.body || "{}");
     const totalTime = Number(payload.prepTime || 0) + Number(payload.cookTime || 0);
-    const calories = await calculateFromPayload(prisma, payload.ingredients || []);
 
     await prisma.recipeIngredient.deleteMany({ where: { recipeId: id } });
     await prisma.instructionStep.deleteMany({ where: { recipeId: id } });
@@ -109,7 +81,6 @@ export const handler = async (event) => {
         cookTime: Number(payload.cookTime || 0),
         totalTime,
         serves: Number(payload.serves || 1),
-        calories: Math.round(calories),
         imageUrl: payload.imageUrl || null,
         ingredients: {
           create: (payload.ingredients || []).map((item) => ({

@@ -15,7 +15,6 @@ const RecipeCard = ({ recipe }) => {
         <h3>{recipe.name}</h3>
         <div className="recipe-card-meta">
           <span>{recipe.totalTime} min</span>
-          <span>{recipe.calories} cal</span>
         </div>
       </div>
     </Link>

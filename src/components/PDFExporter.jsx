@@ -17,8 +17,7 @@ const PDFExporter = ({ recipe }) => {
     y += 6;
     doc.text(`Serves: ${recipe.serves}`, 14, y);
     y += 6;
-    doc.text(`Calories: ${recipe.calories}`, 14, y);
-    y += 8;
+    y += 2;
 
     if (recipe.imageUrl) {
       try {

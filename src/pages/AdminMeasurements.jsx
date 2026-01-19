@@ -47,7 +47,6 @@ const AdminMeasurements = () => {
     }
     await api.updateMeasurement(id, {
       name: field === "name" ? value : current.name,
-      conversionFactor: current.conversionFactor,
     });
     load();
   };

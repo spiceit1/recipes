@@ -28,7 +28,6 @@ export const handler = async (event) => {
     const measurement = await prisma.measurement.create({
       data: {
         name,
-        conversionFactor: Number(payload.conversionFactor || 0),
       },
     });
     return jsonResponse(201, measurement);
@@ -43,7 +42,6 @@ export const handler = async (event) => {
       where: { id },
       data: {
         name: payload.name,
-        conversionFactor: Number(payload.conversionFactor || 0),
       },
     });
     return jsonResponse(200, measurement);

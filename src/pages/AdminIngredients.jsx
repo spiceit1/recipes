@@ -47,7 +47,6 @@ const AdminIngredients = () => {
     }
     await api.updateIngredient(id, {
       name: field === "name" ? value : current.name,
-      caloriesPerUnit: current.caloriesPerUnit,
     });
     load();
   };

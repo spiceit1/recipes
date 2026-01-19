@@ -28,7 +28,6 @@ export const handler = async (event) => {
     const ingredient = await prisma.ingredient.create({
       data: {
         name,
-        caloriesPerUnit: Number(payload.caloriesPerUnit || 0),
       },
     });
     return jsonResponse(201, ingredient);
@@ -43,7 +42,6 @@ export const handler = async (event) => {
       where: { id },
       data: {
         name: payload.name,
-        caloriesPerUnit: Number(payload.caloriesPerUnit || 0),
       },
     });
     return jsonResponse(200, ingredient);

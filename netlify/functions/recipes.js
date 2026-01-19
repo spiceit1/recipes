@@ -13,7 +13,6 @@ export const handler = async (event) => {
       name: true,
       category: true,
       totalTime: true,
-      calories: true,
       imageUrl: true,
       published: true,
     },

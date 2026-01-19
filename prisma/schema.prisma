@@ -15,7 +15,6 @@ model Recipe {
   cookTime   Int
   totalTime  Int
   serves     Int
-  calories   Int
   imageUrl   String?
   published  Boolean            @default(false)
   ingredients RecipeIngredient[]
@@ -28,7 +27,6 @@ model Recipe {
 model Ingredient {
   id              String             @id @default(cuid())
   name            String             @unique
-  caloriesPerUnit Float
   recipeIngredients RecipeIngredient[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
@@ -37,7 +35,6 @@ model Ingredient {
 model Measurement {
   id               String             @id @default(cuid())
   name             String             @unique
-  conversionFactor Float
   recipeIngredients RecipeIngredient[]
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt

@@ -58,15 +58,6 @@ const AdminRecipes = () => {
     loadRecipes();
   };
 
-  const handleRecalc = async () => {
-    if (!activeRecipe?.id) {
-      return;
-    }
-    await api.recalcCalories(activeRecipe.id);
-    const data = await api.getRecipe(activeRecipe.id, true);
-    setActiveRecipe(data);
-    loadRecipes();
-  };
 
   if (isLoading) {
     return <div className="empty-state">Loading...</div>;
@@ -132,7 +123,6 @@ const AdminRecipes = () => {
               recipe={activeRecipe}
               onSave={handleSave}
               onCancel={closeModal}
-              onRecalc={activeRecipe ? handleRecalc : null}
             />
           </div>
         </div>

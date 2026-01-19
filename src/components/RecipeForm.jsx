@@ -39,7 +39,7 @@ const buildFormState = (data) => ({
     : [emptyStepRow()],
 });
 
-const RecipeForm = ({ recipe, onSave, onCancel, onRecalc }) => {
+const RecipeForm = ({ recipe, onSave, onCancel }) => {
   const [ingredients, setIngredients] = useState([]);
   const [measurements, setMeasurements] = useState([]);
   const [form, setForm] = useState(buildFormState(recipe));
@@ -112,7 +112,6 @@ const RecipeForm = ({ recipe, onSave, onCancel, onRecalc }) => {
       if (modal.type === "ingredient") {
         const created = await api.createIngredient({
           name: trimmed,
-          caloriesPerUnit: 0,
         });
         setIngredients((prev) => [...prev, created]);
         updateIngredient(modal.index, "ingredientId", created.id);
@@ -120,7 +119,6 @@ const RecipeForm = ({ recipe, onSave, onCancel, onRecalc }) => {
       if (modal.type === "measurement") {
         const created = await api.createMeasurement({
           name: trimmed,
-          conversionFactor: 0,
         });
         setMeasurements((prev) => [...prev, created]);
         updateIngredient(modal.index, "measurementId", created.id);
@@ -327,11 +325,6 @@ const RecipeForm = ({ recipe, onSave, onCancel, onRecalc }) => {
         <button type="button" onClick={handleSave} disabled={isSaving}>
           {isSaving ? "Saving..." : "Save Recipe"}
         </button>
-        {onRecalc ? (
-          <button type="button" onClick={onRecalc}>
-            Recalculate Calories
-          </button>
-        ) : null}
         <button type="button" onClick={onCancel}>
           Close
         </button>

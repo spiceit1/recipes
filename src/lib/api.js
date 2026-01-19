@@ -49,11 +49,6 @@ export const api = {
   updateMeasurement: (id, payload) =>
     request(`measurements?id=${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteMeasurement: (id) => request(`measurements?id=${id}`, { method: "DELETE" }),
-  recalcCalories: (recipeId) =>
-    request("calc-calories", {
-      method: "POST",
-      body: JSON.stringify({ recipeId }),
-    }),
   uploadImage: (payload) =>
     request("image-upload", { method: "POST", body: JSON.stringify(payload) }),
   postComment: (payload) =>
