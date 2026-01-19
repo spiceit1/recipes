@@ -296,6 +296,12 @@ textarea {
   border-color: #1d1d1d;
 }
 
+.ingredient-scaler .active:hover {
+  background: #1d1d1d;
+  color: #fff;
+  border-color: #1d1d1d;
+}
+
 .recipe-body {
   display: grid;
   gap: 2rem;
