@@ -42,7 +42,10 @@ const AdminComments = () => {
             <div>
               <div className="admin-title">{comment.recipe?.name || "Recipe"}</div>
               <div className="tiny-text">
-                {comment.name} · {comment.rating}/5
+                {comment.name} · {comment.email} · {comment.rating}/5 ·{" "}
+                {comment.createdAt
+                  ? new Date(comment.createdAt).toLocaleDateString()
+                  : ""}
               </div>
               <div>{comment.comment}</div>
             </div>

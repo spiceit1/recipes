@@ -479,7 +479,11 @@ textarea {
 
 .inline-message {
   font-size: 0.85rem;
-  color: #8a6d3b;
+  color: #b00020;
+}
+
+.inline-message.success {
+  color: #1f7a3d;
 }
 
 .modal-backdrop {

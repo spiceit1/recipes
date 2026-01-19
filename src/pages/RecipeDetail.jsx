@@ -17,6 +17,8 @@ const RecipeDetail = ({ adminMode }) => {
     rating: 0,
     text: "",
   });
+  const [commentError, setCommentError] = useState("");
+  const [commentSuccess, setCommentSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -42,17 +44,22 @@ const RecipeDetail = ({ adminMode }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!comment.name || !comment.email || !comment.rating) {
+      setCommentError("Rating is required.");
+      setCommentSuccess("");
       return;
     }
     setIsSubmitting(true);
+    setCommentError("");
     try {
       await api.postComment({
         recipeId: id,
         name: comment.name,
+        email: comment.email,
         rating: Number(comment.rating),
         comment: comment.text,
       });
       setComment({ name: "", email: "", rating: 0, text: "" });
+      setCommentSuccess("Thank you for your Rating/Comment");
     } finally {
       setIsSubmitting(false);
     }
@@ -163,6 +170,10 @@ const RecipeDetail = ({ adminMode }) => {
               </button>
             ))}
           </div>
+          {commentError ? <div className="inline-message">{commentError}</div> : null}
+          {commentSuccess ? (
+            <div className="inline-message success">{commentSuccess}</div>
+          ) : null}
         </div>
         <label className="field-label" htmlFor="comment-text">
           Comment (optional)
