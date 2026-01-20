@@ -65,15 +65,15 @@ const AdminRecipes = () => {
     loadRecipes();
   };
 
-  const handleDelete = async (id) => {
-    setPendingDelete(id);
+  const handleDelete = async (recipe) => {
+    setPendingDelete({ id: recipe.id, name: recipe.name });
   };
 
   const confirmDelete = async () => {
-    if (!pendingDelete) {
+    if (!pendingDelete?.id) {
       return;
     }
-    await api.deleteRecipe(pendingDelete);
+    await api.deleteRecipe(pendingDelete.id);
     setPendingDelete(null);
     loadRecipes();
   };
@@ -120,7 +120,7 @@ const AdminRecipes = () => {
                 <button type="button" onClick={() => openEdit(recipe.id)}>
                   Edit
                 </button>
-                <button type="button" onClick={() => handleDelete(recipe.id)}>
+                <button type="button" onClick={() => handleDelete(recipe)}>
                   Delete
                 </button>
                 <button
@@ -154,7 +154,7 @@ const AdminRecipes = () => {
       ) : null}
       {pendingDelete ? (
         <ConfirmModal
-          title="Delete recipe?"
+          title={`Delete "${pendingDelete.name}"?`}
           message="This will remove the recipe permanently."
           confirmLabel="Delete"
           onCancel={() => setPendingDelete(null)}

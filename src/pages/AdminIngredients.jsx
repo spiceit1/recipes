@@ -91,15 +91,15 @@ const AdminIngredients = () => {
   };
 
 
-  const handleDelete = async (id) => {
-    setPendingDelete(id);
+  const handleDelete = async (item) => {
+    setPendingDelete({ id: item.id, name: item.name });
   };
 
   const confirmDelete = async () => {
-    if (!pendingDelete) {
+    if (!pendingDelete?.id) {
       return;
     }
-    await api.deleteIngredient(pendingDelete);
+    await api.deleteIngredient(pendingDelete.id);
     setPendingDelete(null);
     load();
   };
@@ -172,7 +172,7 @@ const AdminIngredients = () => {
                     <button type="button" onClick={() => handleEdit(item)}>
                       Edit
                     </button>
-                    <button type="button" onClick={() => handleDelete(item.id)}>
+                    <button type="button" onClick={() => handleDelete(item)}>
                       Delete
                     </button>
                   </div>
@@ -230,7 +230,7 @@ const AdminIngredients = () => {
       ) : null}
       {pendingDelete ? (
         <ConfirmModal
-          title="Delete ingredient?"
+          title={`Delete "${pendingDelete.name}"?`}
           message="This will remove the ingredient permanently."
           confirmLabel="Delete"
           onCancel={() => setPendingDelete(null)}

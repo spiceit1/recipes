@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api.js";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 
 const AdminMeasurements = () => {
@@ -8,6 +9,7 @@ const AdminMeasurements = () => {
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState("");
   const [editingName, setEditingName] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   const load = async () => {
     const data = await api.getMeasurements();
@@ -83,8 +85,16 @@ const AdminMeasurements = () => {
   };
 
 
-  const handleDelete = async (id) => {
-    await api.deleteMeasurement(id);
+  const handleDelete = async (item) => {
+    setPendingDelete({ id: item.id, name: item.name });
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete?.id) {
+      return;
+    }
+    await api.deleteMeasurement(pendingDelete.id);
+    setPendingDelete(null);
     load();
   };
 
@@ -131,7 +141,7 @@ const AdminMeasurements = () => {
                     <button type="button" onClick={() => handleEdit(item)}>
                       Edit
                     </button>
-                    <button type="button" onClick={() => handleDelete(item.id)}>
+                    <button type="button" onClick={() => handleDelete(item)}>
                       Delete
                     </button>
                   </div>
@@ -141,6 +151,15 @@ const AdminMeasurements = () => {
           ))}
         </div>
       )}
+      {pendingDelete ? (
+        <ConfirmModal
+          title={`Delete "${pendingDelete.name}"?`}
+          message="This will remove the measurement permanently."
+          confirmLabel="Delete"
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
     </div>
   );
 };
