@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../lib/api.js";
 import ImageUploader from "./ImageUploader.jsx";
 import { CATEGORIES } from "../lib/constants.js";
@@ -44,7 +44,9 @@ const RecipeForm = ({ recipe, onSave, onCancel }) => {
   const [measurements, setMeasurements] = useState([]);
   const [form, setForm] = useState(buildFormState(recipe));
   const [isSaving, setIsSaving] = useState(false);
+  const [formError, setFormError] = useState("");
   const [modal, setModal] = useState({ type: "", index: null, name: "", error: "" });
+  const formRef = useRef(null);
 
   useEffect(() => {
     const load = async () => {
@@ -134,6 +136,15 @@ const RecipeForm = ({ recipe, onSave, onCancel }) => {
   };
 
   const handleSave = async () => {
+    if (!form.name || !form.category) {
+      setFormError("Recipe name and category are required.");
+      const modalNode = formRef.current?.closest(".modal");
+      if (modalNode) {
+        modalNode.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      return;
+    }
+    setFormError("");
     const payload = {
       name: form.name,
       category: form.category,
@@ -166,7 +177,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }) => {
   };
 
   return (
-    <div className="admin-form">
+    <div className="admin-form" ref={formRef}>
       <label className="field-label">Recipe name</label>
       <input
         type="text"
@@ -186,6 +197,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }) => {
           </option>
         ))}
       </select>
+      {formError ? <div className="inline-message">{formError}</div> : null}
 
       <label className="field-label">Prep time (minutes)</label>
       <input

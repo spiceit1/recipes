@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api.js";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 import RecipeForm from "../components/RecipeForm.jsx";
 
 const AdminRecipes = () => {
@@ -7,6 +9,8 @@ const AdminRecipes = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [activeRecipe, setActiveRecipe] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const loadRecipes = async () => {
     setIsLoading(true);
@@ -21,6 +25,19 @@ const AdminRecipes = () => {
   useEffect(() => {
     loadRecipes();
   }, []);
+
+  useEffect(() => {
+    const editId = searchParams.get("editRecipe");
+    if (!editId) {
+      return;
+    }
+    openEdit(editId).finally(() => {
+      setSearchParams((params) => {
+        params.delete("editRecipe");
+        return params;
+      });
+    });
+  }, [searchParams, setSearchParams]);
 
   const openAdd = () => {
     setActiveRecipe(null);
@@ -49,7 +66,15 @@ const AdminRecipes = () => {
   };
 
   const handleDelete = async (id) => {
-    await api.deleteRecipe(id);
+    setPendingDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) {
+      return;
+    }
+    await api.deleteRecipe(pendingDelete);
+    setPendingDelete(null);
     loadRecipes();
   };
 
@@ -126,6 +151,15 @@ const AdminRecipes = () => {
             />
           </div>
         </div>
+      ) : null}
+      {pendingDelete ? (
+        <ConfirmModal
+          title="Delete recipe?"
+          message="This will remove the recipe permanently."
+          confirmLabel="Delete"
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
+        />
       ) : null}
     </div>
   );

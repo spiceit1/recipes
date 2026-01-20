@@ -38,6 +38,7 @@ export const api = {
       body: JSON.stringify({ id, published }),
     }),
   getIngredients: () => request("ingredients"),
+  getIngredientRecipes: (id) => request(`ingredient-recipes?id=${id}`),
   createIngredient: (payload) =>
     request("ingredients", { method: "POST", body: JSON.stringify(payload) }),
   updateIngredient: (id, payload) =>

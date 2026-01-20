@@ -48,10 +48,17 @@ const Home = ({ searchQuery }) => {
     if (activeCategory) {
       return [];
     }
-    return CATEGORIES.map((category) => ({
+    const groups = CATEGORIES.map((category) => ({
       category,
       items: recipes.filter((recipe) => recipe.category === category),
     })).filter((group) => group.items.length);
+    const uncategorized = recipes.filter(
+      (recipe) => !recipe.category || !CATEGORIES.includes(recipe.category)
+    );
+    if (uncategorized.length) {
+      groups.push({ category: "Uncategorized", items: uncategorized });
+    }
+    return groups;
   }, [recipes, activeCategory]);
 
   return (

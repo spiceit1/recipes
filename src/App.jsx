@@ -6,6 +6,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
+  useSearchParams,
 } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import RecipeDetail from "./pages/RecipeDetail.jsx";
@@ -23,6 +24,7 @@ const App = () => {
   const [adminView, setAdminView] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     const enabled = getAdminMode();
@@ -59,6 +61,19 @@ const App = () => {
       navigate("/");
     }
   }, [adminMode, adminView, location.pathname, navigate]);
+
+  useEffect(() => {
+    if (!adminMode) {
+      return;
+    }
+    if (searchParams.get("customerView") === "1") {
+      setAdminView(false);
+      setSearchParams((params) => {
+        params.delete("customerView");
+        return params;
+      });
+    }
+  }, [adminMode, searchParams, setSearchParams]);
 
   const adminLayoutValue = useMemo(
     () => ({ adminMode, onAdminEnabled: handleAdminEnabled }),

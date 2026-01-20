@@ -451,6 +451,9 @@ textarea {
 .admin-text {
   font-size: 1rem;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .admin-actions {
@@ -490,6 +493,53 @@ textarea {
 
 .inline-message.success {
   color: #1f7a3d;
+}
+
+.recipe-count-link {
+  background: transparent;
+  border: none;
+  color: #1f5bd6;
+  font-size: 0.85rem;
+  padding: 0;
+}
+
+.recipe-count-link:hover {
+  text-decoration: underline;
+  box-shadow: none;
+  transform: none;
+}
+
+.modal-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.modal-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.modal-action {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid #d6d6d6;
+  font-size: 0.85rem;
+}
+
+.modal-action:hover {
+  border-color: #1d1d1d;
+  background: #f1f1f1;
+}
+
+.modal-unpublished {
+  font-size: 0.85rem;
+  color: #8a8a8a;
 }
 
 .modal-backdrop {

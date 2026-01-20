@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../lib/api.js";
+import ConfirmModal from "../components/ConfirmModal.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 
 const AdminIngredients = () => {
@@ -8,6 +10,12 @@ const AdminIngredients = () => {
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState("");
   const [editingName, setEditingName] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [recipeModal, setRecipeModal] = useState({
+    open: false,
+    ingredientName: "",
+    recipes: [],
+  });
 
   const load = async () => {
     const data = await api.getIngredients();
@@ -84,8 +92,29 @@ const AdminIngredients = () => {
 
 
   const handleDelete = async (id) => {
-    await api.deleteIngredient(id);
+    setPendingDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) {
+      return;
+    }
+    await api.deleteIngredient(pendingDelete);
+    setPendingDelete(null);
     load();
+  };
+
+  const openRecipeModal = async (ingredient) => {
+    const data = await api.getIngredientRecipes(ingredient.id);
+    setRecipeModal({
+      open: true,
+      ingredientName: ingredient.name,
+      recipes: data || [],
+    });
+  };
+
+  const closeRecipeModal = () => {
+    setRecipeModal({ open: false, ingredientName: "", recipes: [] });
   };
 
   return (
@@ -126,7 +155,19 @@ const AdminIngredients = () => {
                 </div>
               ) : (
                 <>
-                  <div className="admin-text">{item.name}</div>
+                  <div className="admin-text">
+                    {item.name}
+                    {item.recipeCount > 0 ? (
+                      <button
+                        type="button"
+                        className="recipe-count-link"
+                        onClick={() => openRecipeModal(item)}
+                      >
+                        {item.recipeCount}{" "}
+                        {item.recipeCount === 1 ? "recipe" : "recipes"}
+                      </button>
+                    ) : null}
+                  </div>
                   <div className="inline-row">
                     <button type="button" onClick={() => handleEdit(item)}>
                       Edit
@@ -141,6 +182,61 @@ const AdminIngredients = () => {
           ))}
         </div>
       )}
+      {recipeModal.open ? (
+        <div className="modal-backdrop" role="presentation">
+          <div className="modal" role="dialog" aria-modal="true">
+            <div className="modal-header">
+              <h3>{recipeModal.ingredientName} recipes</h3>
+              <button type="button" className="modal-close" onClick={closeRecipeModal}>
+                ✕
+              </button>
+            </div>
+            {recipeModal.recipes.length ? (
+              <div className="modal-list">
+                {recipeModal.recipes.map((recipe) => (
+                  <div key={recipe.id} className="modal-link">
+                    <div>
+                      <div>{recipe.name}</div>
+                      <div className="tiny-text">{recipe.category}</div>
+                    </div>
+                    <div className="inline-row">
+                      {recipe.published ? (
+                        <Link
+                          to={`/recipe/${recipe.id}?customerView=1`}
+                          className="modal-action"
+                          onClick={closeRecipeModal}
+                        >
+                          View
+                        </Link>
+                      ) : (
+                        <span className="modal-unpublished">Unpublished</span>
+                      )}
+                      <Link
+                        to={`/admin?editRecipe=${recipe.id}`}
+                        className="modal-action"
+                        onClick={closeRecipeModal}
+                      >
+                        Edit
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="tiny-text">No recipes yet.</div>
+            )}
+          </div>
+        </div>
+      ) : null}
+      {pendingDelete ? (
+        <ConfirmModal
+          title="Delete ingredient?"
+          message="This will remove the ingredient permanently."
+          confirmLabel="Delete"
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
     </div>
   );
 };

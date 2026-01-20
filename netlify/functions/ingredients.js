@@ -9,8 +9,17 @@ export const handler = async (event) => {
   if (method === "GET") {
     const ingredients = await prisma.ingredient.findMany({
       orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: { recipeIngredients: true },
+        },
+      },
     });
-    return jsonResponse(200, ingredients);
+    const response = ingredients.map((ingredient) => ({
+      ...ingredient,
+      recipeCount: ingredient._count?.recipeIngredients || 0,
+    }));
+    return jsonResponse(200, response);
   }
 
   if (method === "POST") {
