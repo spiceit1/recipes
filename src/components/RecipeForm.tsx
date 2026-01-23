@@ -92,6 +92,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     value: number;
   }>({ type: null, index: null, value: -1 });
   const activeItemRef = useRef<HTMLButtonElement | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -100,8 +101,12 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         api.getIngredients(),
         api.getMeasurements(),
       ]);
-      setIngredients(ingredientData || []);
-      setMeasurements(measurementData || []);
+      setIngredients(
+        (ingredientData || []).slice().sort((a, b) => a.name.localeCompare(b.name))
+      );
+      setMeasurements(
+        (measurementData || []).slice().sort((a, b) => a.name.localeCompare(b.name))
+      );
     };
     load();
   }, []);
@@ -218,6 +223,21 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     });
   };
 
+  const moveIngredientRow = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) {
+      return;
+    }
+    setForm((prev) => {
+      const next = [...prev.ingredients];
+      if (!next[fromIndex] || !next[toIndex]) {
+        return prev;
+      }
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return { ...prev, ingredients: next };
+    });
+  };
+
   const toggleNewIngredient = (index: number) => {
     setNewIngredientIndex((prev) => (prev === index ? null : index));
   };
@@ -241,7 +261,9 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     }
     try {
       const created = await api.createIngredient({ name: trimmed });
-      setIngredients((prev) => [...prev, created]);
+      setIngredients((prev) =>
+        [...prev, created].sort((a, b) => a.name.localeCompare(b.name))
+      );
       updateIngredient(newIngredientIndex, "ingredientId", created.id);
       updateIngredient(newIngredientIndex, "ingredientName", created.name);
       setNewIngredientIndex(null);
@@ -270,7 +292,9 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     }
     try {
       const created = await api.createMeasurement({ name: trimmed });
-      setMeasurements((prev) => [...prev, created]);
+      setMeasurements((prev) =>
+        [...prev, created].sort((a, b) => a.name.localeCompare(b.name))
+      );
       updateIngredient(newMeasurementIndex, "measurementId", created.id);
       updateIngredient(newMeasurementIndex, "measurementName", created.name);
       setNewMeasurementIndex(null);
@@ -389,7 +413,46 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       <div className="tiny-text">Click Add Section to insert a header, then add ingredients below it.</div>
       {form.ingredients.map((row, index) =>
         row.type === "section" ? (
-          <div key={`section-${index}`} className="inline-row">
+          <div
+            key={`section-${index}`}
+            className="inline-row ingredient-row"
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              if (dragIndex === null) {
+                return;
+              }
+              moveIngredientRow(dragIndex, index);
+              setDragIndex(null);
+            }}
+          >
+            <button
+              type="button"
+              className="drag-handle"
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "move";
+                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
+                if (row) {
+                  const rect = row.getBoundingClientRect();
+                  event.dataTransfer.setDragImage(
+                    row,
+                    event.clientX - rect.left,
+                    event.clientY - rect.top
+                  );
+                  row.classList.add("dragging");
+                }
+                setDragIndex(index);
+              }}
+              onDragEnd={(event) => {
+                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
+                row?.classList.remove("dragging");
+                setDragIndex(null);
+              }}
+              aria-label="Drag to reorder"
+            >
+              ≡
+            </button>
             <input
               type="text"
               placeholder="Section title"
@@ -411,7 +474,46 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             </button>
           </div>
         ) : (
-          <div key={`ingredient-${index}`} className="inline-row">
+          <div
+            key={`ingredient-${index}`}
+            className="inline-row ingredient-row"
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => {
+              event.preventDefault();
+              if (dragIndex === null) {
+                return;
+              }
+              moveIngredientRow(dragIndex, index);
+              setDragIndex(null);
+            }}
+          >
+            <button
+              type="button"
+              className="drag-handle"
+              draggable
+              onDragStart={(event) => {
+                event.dataTransfer.effectAllowed = "move";
+                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
+                if (row) {
+                  const rect = row.getBoundingClientRect();
+                  event.dataTransfer.setDragImage(
+                    row,
+                    event.clientX - rect.left,
+                    event.clientY - rect.top
+                  );
+                  row.classList.add("dragging");
+                }
+                setDragIndex(index);
+              }}
+              onDragEnd={(event) => {
+                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
+                row?.classList.remove("dragging");
+                setDragIndex(null);
+              }}
+              aria-label="Drag to reorder"
+            >
+              ≡
+            </button>
             <div className="combo-box">
               {(() => {
                 const filtered = getFilteredIngredients(row.ingredientName);

@@ -647,6 +647,31 @@ textarea {
   flex-wrap: wrap;
 }
 
+.ingredient-row {
+  align-items: center;
+}
+
+.ingredient-row.dragging {
+  opacity: 0.6;
+}
+
+.drag-handle {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #1d1d1d;
+  background: #fff;
+  color: #1d1d1d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
 .combo-box {
   position: relative;
   min-width: 180px;
