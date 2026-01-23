@@ -139,6 +139,16 @@ textarea {
   flex-shrink: 0;
 }
 
+.admin-icon-large {
+  width: 24px;
+  height: 24px;
+}
+
+.admin-button .admin-icon-large {
+  width: 24px;
+  height: 24px;
+}
+
 .admin-toggle {
   padding: 0.55rem 1rem;
   border-radius: 999px;

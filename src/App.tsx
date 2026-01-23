@@ -105,7 +105,7 @@ const App = () => {
               className="admin-button dark"
               onClick={handleAdminExit}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
+              <svg viewBox="0 0 24 24" className="admin-icon-large" aria-hidden="true">
                 <path
                   fill="currentColor"
                   d="M10 5v2h6v10h-6v2h8V5h-8Zm-1.59 4L5 12l3.41 3L10 13.59 8.41 12 10 10.41 8.41 9Z"
