@@ -92,9 +92,6 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     value: number;
   }>({ type: null, index: null, value: -1 });
   const activeItemRef = useRef<HTMLButtonElement | null>(null);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const longPressTimerRef = useRef<number | null>(null);
-  const draggingRef = useRef(false);
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -181,54 +178,6 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         {after}
       </>
     );
-  };
-
-  const clearLongPress = () => {
-    if (longPressTimerRef.current !== null) {
-      window.clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  };
-
-  const endDrag = () => {
-    clearLongPress();
-    draggingRef.current = false;
-    setDragIndex(null);
-  };
-
-  const handlePointerDown = (index: number, event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== "touch") {
-      return;
-    }
-    const target = event.target as HTMLElement;
-    if (target.closest("input, select, textarea, button")) {
-      return;
-    }
-    clearLongPress();
-    longPressTimerRef.current = window.setTimeout(() => {
-      draggingRef.current = true;
-      setDragIndex(index);
-    }, 300);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!draggingRef.current) {
-      return;
-    }
-    event.preventDefault();
-    const target = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
-    const row = target?.closest<HTMLElement>("[data-row-index]");
-    const nextIndex = row ? Number(row.dataset.rowIndex) : null;
-    if (nextIndex !== null && !Number.isNaN(nextIndex) && dragIndex !== null) {
-      if (nextIndex !== dragIndex) {
-        moveIngredientRow(dragIndex, nextIndex);
-        setDragIndex(nextIndex);
-      }
-    }
-  };
-
-  const handlePointerUp = () => {
-    endDrag();
   };
 
   useEffect(() => {
@@ -463,17 +412,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       <div className="tiny-text">Click Add Section to insert a header, then add ingredients below it.</div>
       {form.ingredients.map((row, index) =>
         row.type === "section" ? (
-          <div
-            key={`section-${index}`}
-            className={`inline-row ingredient-row section-row${
-              dragIndex === index ? " dragging" : ""
-            }`}
-            data-row-index={index}
-            onPointerDown={(event) => handlePointerDown(index, event)}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-          >
+          <div key={`section-${index}`} className="inline-row ingredient-row section-row">
             <div className="row-reorder">
               {index > 0 ? (
                 <button
@@ -523,17 +462,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             </button>
           </div>
         ) : (
-          <div
-            key={`ingredient-${index}`}
-            className={`inline-row ingredient-row ingredient-item${
-              dragIndex === index ? " dragging" : ""
-            }`}
-            data-row-index={index}
-            onPointerDown={(event) => handlePointerDown(index, event)}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-          >
+          <div key={`ingredient-${index}`} className="inline-row ingredient-row ingredient-item">
             <div className="row-reorder">
               {index > 0 ? (
                 <button

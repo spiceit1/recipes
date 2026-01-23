@@ -665,10 +665,6 @@ textarea {
   width: 100%;
 }
 
-.ingredient-row.dragging {
-  opacity: 0.7;
-}
-
 .row-reorder {
   display: inline-flex;
   gap: 0.4rem;
