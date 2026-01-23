@@ -241,8 +241,9 @@ textarea {
 }
 
 .recipe-hero img {
-  width: 100%;
-  max-height: 420px;
+  width: 280px;
+  height: 200px;
+  object-fit: cover;
   border-radius: 16px;
 }
 
@@ -253,7 +254,8 @@ textarea {
 }
 
 .image-placeholder.large {
-  height: 320px;
+  width: 280px;
+  height: 200px;
 }
 
 .recipe-card-body {
@@ -343,6 +345,22 @@ textarea {
   display: grid;
   gap: 2rem;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.ingredient-section {
+  margin-top: 1rem;
+}
+
+.ingredient-section:first-of-type {
+  margin-top: 0;
+}
+
+.ingredient-section h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7a6f64;
 }
 
 .comment-form {
@@ -627,6 +645,77 @@ textarea {
   display: flex;
   gap: 0.6rem;
   flex-wrap: wrap;
+}
+
+.combo-box {
+  position: relative;
+  min-width: 180px;
+}
+
+.combo-box input {
+  width: 100%;
+}
+
+.combo-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  background: #fff;
+  border: 1px solid #dedede;
+  border-radius: 8px;
+  max-height: 220px;
+  overflow: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+  padding: 0.25rem 0;
+}
+
+.combo-item {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 0.45rem 0.8rem;
+}
+
+.combo-item.active {
+  background: #f3f3f3;
+}
+
+.combo-match {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.combo-item:hover {
+  background: #f3f3f3;
+  box-shadow: none;
+  transform: none;
+}
+
+.ingredient-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+}
+
+.ingredient-actions .admin-action {
+  flex: 1;
 }
 
 .inline-message {

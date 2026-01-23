@@ -23,6 +23,7 @@ export type RecipeIngredient = {
   ingredientId?: string;
   measurementId?: string | null;
   amount?: number;
+  section?: string | null;
   ingredient?: Ingredient | null;
   measurement?: Measurement | null;
 };
@@ -53,11 +54,21 @@ export type Comment = {
   recipe?: RecipeSummary | null;
 };
 
-export type RecipeFormIngredient = {
+export type RecipeFormIngredientRow = {
+  type: "ingredient";
   ingredientId: string;
+  ingredientName: string;
   measurementId: string;
+  measurementName: string;
   amount: string | number;
 };
+
+export type RecipeFormSectionRow = {
+  type: "section";
+  title: string;
+};
+
+export type RecipeFormRow = RecipeFormIngredientRow | RecipeFormSectionRow;
 
 export type RecipeFormStep = {
   text: string;
@@ -71,7 +82,7 @@ export type RecipeFormState = {
   cookTime: number | string;
   serves: number | string;
   imageUrl: string;
-  ingredients: RecipeFormIngredient[];
+  ingredients: RecipeFormRow[];
   steps: RecipeFormStep[];
 };
 
@@ -86,6 +97,7 @@ export type RecipePayload = {
     ingredientId: string;
     measurementId: string | null;
     amount: number;
+    section?: string | null;
   }>;
   steps: Array<{
     text: string;

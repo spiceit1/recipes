@@ -24,6 +24,7 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
   const { id } = useParams();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [scale, setScale] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
   const [comment, setComment] = useState<CommentFormState>({
     name: "",
     email: "",
@@ -35,6 +36,9 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
+      if (isMounted) {
+        setIsLoading(true);
+      }
       try {
         if (!id) {
           setRecipe(null);
@@ -47,6 +51,10 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
       } catch (error) {
         if (isMounted) {
           setRecipe(null);
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
         }
       }
     };
@@ -80,11 +88,32 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
     }
   };
 
+  if (isLoading) {
+    return <div className="empty-state">Loading...</div>;
+  }
+
   if (!recipe) {
     return <EmptyState message="Recipe not found" />;
   }
 
   const totalTime = recipe.totalTime ?? getTotalTime(recipe.prepTime, recipe.cookTime);
+  const ingredients = recipe.ingredients || [];
+  const hasSections = ingredients.some((item) => item.section && item.section.trim());
+  const groupedIngredients = ingredients.reduce(
+    (acc, item) => {
+      const section = item.section?.trim() || "";
+      const key = section || "__default__";
+      if (!acc.map.has(key)) {
+        const label = section || "";
+        const group = { key, label, items: [] };
+        acc.map.set(key, group);
+        acc.order.push(group);
+      }
+      acc.map.get(key)?.items.push(item);
+      return acc;
+    },
+    { map: new Map<string, { key: string; label: string; items: typeof ingredients }>(), order: [] as Array<{ key: string; label: string; items: typeof ingredients }> }
+  ).order;
 
   return (
     <section className="recipe-detail">
@@ -114,15 +143,32 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
       <div className="recipe-body">
         <div className="ingredients">
           <h2>Ingredients</h2>
-          <ul>
-            {(recipe.ingredients || []).map((item) => (
-              <li key={item.id}>
-                {`${scaleAmount(item.amount, scale)} ${
-                  item.measurement?.name ? `${item.measurement.name} ` : ""
-                }${item.ingredient?.name || ""}`.trim()}
-              </li>
-            ))}
-          </ul>
+          {hasSections ? (
+            groupedIngredients.map((group) => (
+              <div key={group.key} className="ingredient-section">
+                {group.label ? <h3>{group.label}</h3> : null}
+                <ul>
+                  {group.items.map((item) => (
+                    <li key={item.id}>
+                      {`${scaleAmount(item.amount, scale)} ${
+                        item.measurement?.name ? `${item.measurement.name} ` : ""
+                      }${item.ingredient?.name || ""}`.trim()}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          ) : (
+            <ul>
+              {ingredients.map((item) => (
+                <li key={item.id}>
+                  {`${scaleAmount(item.amount, scale)} ${
+                    item.measurement?.name ? `${item.measurement.name} ` : ""
+                  }${item.ingredient?.name || ""}`.trim()}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className="instructions">
           <h2>Instructions</h2>

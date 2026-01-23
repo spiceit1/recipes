@@ -7,14 +7,24 @@ import type {
   Ingredient,
   Measurement,
   Recipe,
+  RecipeFormIngredientRow,
+  RecipeFormRow,
   RecipeFormState,
   RecipePayload,
 } from "../lib/types";
 
-const emptyIngredientRow = () => ({
+const emptyIngredientRow = (): RecipeFormIngredientRow => ({
+  type: "ingredient",
   ingredientId: "",
+  ingredientName: "",
   measurementId: "",
+  measurementName: "",
   amount: "",
+});
+
+const emptySectionRow = (): RecipeFormRow => ({
+  type: "section",
+  title: "",
 });
 
 const emptyStepRow = () => ({
@@ -30,11 +40,22 @@ const buildFormState = (data?: Recipe | null): RecipeFormState => ({
   serves: data?.serves ?? 1,
   imageUrl: data?.imageUrl || "",
   ingredients: data?.ingredients?.length
-    ? data.ingredients.map((item) => ({
-        ingredientId: item.ingredientId || "",
-        measurementId: item.measurementId || "",
-        amount: item.amount ?? "",
-      }))
+    ? data.ingredients.reduce<RecipeFormRow[]>((rows, item) => {
+        const section = item.section?.trim() || "";
+        const last = rows[rows.length - 1];
+        if (section && (!last || last.type !== "section" || last.title !== section)) {
+          rows.push({ type: "section", title: section });
+        }
+        rows.push({
+          type: "ingredient",
+          ingredientId: item.ingredientId || "",
+          ingredientName: item.ingredient?.name || "",
+          measurementId: item.measurementId || "",
+          measurementName: item.measurement?.name || "",
+          amount: item.amount ?? "",
+        });
+        return rows;
+      }, [])
     : [emptyIngredientRow()],
   steps: data?.steps?.length
     ? data.steps
@@ -53,22 +74,24 @@ type RecipeFormProps = {
   onCancel: () => void;
 };
 
-type ModalState = {
-  type: "" | "ingredient" | "measurement";
-  index: number | null;
-  name: string;
-};
-
 const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [form, setForm] = useState<RecipeFormState>(buildFormState(recipe));
   const [isSaving, setIsSaving] = useState(false);
-  const [modal, setModal] = useState<ModalState>({
-    type: "",
-    index: null,
-    name: "",
-  });
+  const [sectionFocusIndex, setSectionFocusIndex] = useState<number | null>(null);
+  const [newIngredientIndex, setNewIngredientIndex] = useState<number | null>(null);
+  const [newMeasurementIndex, setNewMeasurementIndex] = useState<number | null>(null);
+  const [activeCombo, setActiveCombo] = useState<{
+    type: "ingredient" | "measurement" | null;
+    index: number | null;
+  }>({ type: null, index: null });
+  const [comboHighlight, setComboHighlight] = useState<{
+    type: "ingredient" | "measurement" | null;
+    index: number | null;
+    value: number;
+  }>({ type: null, index: null, value: -1 });
+  const activeItemRef = useRef<HTMLButtonElement | null>(null);
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -94,14 +117,79 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateIngredient = <T extends keyof RecipeFormState["ingredients"][number]>(
+  const updateIngredient = <T extends keyof RecipeFormIngredientRow>(
     index: number,
     field: T,
-    value: RecipeFormState["ingredients"][number][T]
+    value: RecipeFormIngredientRow[T]
   ) => {
     setForm((prev) => {
       const next = [...prev.ingredients];
-      next[index] = { ...next[index], [field]: value };
+      const row = next[index];
+      if (!row || row.type !== "ingredient") {
+        return prev;
+      }
+      next[index] = { ...row, [field]: value };
+      return { ...prev, ingredients: next };
+    });
+  };
+
+  const openCombo = (type: "ingredient" | "measurement", index: number) => {
+    setActiveCombo({ type, index });
+    setComboHighlight({ type, index, value: 0 });
+  };
+
+  const closeCombo = () => {
+    setActiveCombo({ type: null, index: null });
+    setComboHighlight({ type: null, index: null, value: -1 });
+  };
+
+  const getFilteredIngredients = (query: string) =>
+    ingredients.filter((item) =>
+      item.name.toLowerCase().includes(query.toLowerCase())
+    );
+
+  const getFilteredMeasurements = (query: string) =>
+    measurements.filter((item) =>
+      item.name.toLowerCase().includes(query.toLowerCase())
+    );
+
+  const renderMatch = (text: string, query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return text;
+    }
+    const lowerText = text.toLowerCase();
+    const lowerQuery = trimmed.toLowerCase();
+    const index = lowerText.indexOf(lowerQuery);
+    if (index === -1) {
+      return text;
+    }
+    const before = text.slice(0, index);
+    const match = text.slice(index, index + trimmed.length);
+    const after = text.slice(index + trimmed.length);
+    return (
+      <>
+        {before}
+        <span className="combo-match">{match}</span>
+        {after}
+      </>
+    );
+  };
+
+  useEffect(() => {
+    if (activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({ block: "nearest" });
+    }
+  }, [comboHighlight, activeCombo]);
+
+  const updateSection = (index: number, value: string) => {
+    setForm((prev) => {
+      const next = [...prev.ingredients];
+      const row = next[index];
+      if (!row || row.type !== "section") {
+        return prev;
+      }
+      next[index] = { ...row, title: value };
       return { ...prev, ingredients: next };
     });
   };
@@ -130,41 +218,63 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     });
   };
 
-  const openAddModal = (type: ModalState["type"], index: number) => {
-    setModal({ type, index, name: "" });
+  const toggleNewIngredient = (index: number) => {
+    setNewIngredientIndex((prev) => (prev === index ? null : index));
   };
 
-  const closeAddModal = () => {
-    setModal({ type: "", index: null, name: "" });
+  const toggleNewMeasurement = (index: number) => {
+    setNewMeasurementIndex((prev) => (prev === index ? null : index));
   };
 
-  const handleModalSave = async () => {
-    if (modal.index === null) {
+  const handleAddIngredient = async () => {
+    if (newIngredientIndex === null) {
       return;
     }
-    const trimmed = modal.name.trim();
+    const row = form.ingredients[newIngredientIndex];
+    if (!row || row.type !== "ingredient") {
+      return;
+    }
+    const trimmed = row.ingredientName.trim();
     if (!trimmed) {
       toast.error("Name required.");
       return;
     }
     try {
-      if (modal.type === "ingredient") {
-        const created = await api.createIngredient({
-          name: trimmed,
-        });
-        setIngredients((prev) => [...prev, created]);
-        updateIngredient(modal.index, "ingredientId", created.id);
-        toast.success("Ingredient added.");
+      const created = await api.createIngredient({ name: trimmed });
+      setIngredients((prev) => [...prev, created]);
+      updateIngredient(newIngredientIndex, "ingredientId", created.id);
+      updateIngredient(newIngredientIndex, "ingredientName", created.name);
+      setNewIngredientIndex(null);
+      toast.success("Ingredient added.");
+    } catch (error) {
+      if (error.message?.toLowerCase().includes("already exists")) {
+        toast.error("Already exists.");
+        return;
       }
-      if (modal.type === "measurement") {
-        const created = await api.createMeasurement({
-          name: trimmed,
-        });
-        setMeasurements((prev) => [...prev, created]);
-        updateIngredient(modal.index, "measurementId", created.id);
-        toast.success("Measurement added.");
-      }
-      closeAddModal();
+      toast.error("Unable to add.");
+    }
+  };
+
+  const handleAddMeasurement = async () => {
+    if (newMeasurementIndex === null) {
+      return;
+    }
+    const row = form.ingredients[newMeasurementIndex];
+    if (!row || row.type !== "ingredient") {
+      return;
+    }
+    const trimmed = row.measurementName.trim();
+    if (!trimmed) {
+      toast.error("Name required.");
+      return;
+    }
+    try {
+      const created = await api.createMeasurement({ name: trimmed });
+      setMeasurements((prev) => [...prev, created]);
+      updateIngredient(newMeasurementIndex, "measurementId", created.id);
+      updateIngredient(newMeasurementIndex, "measurementName", created.name);
+      setNewMeasurementIndex(null);
+      toast.success("Measurement added.");
     } catch (error) {
       if (error.message?.toLowerCase().includes("already exists")) {
         toast.error("Already exists.");
@@ -183,6 +293,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       }
       return;
     }
+    let currentSection = "";
     const payload: RecipePayload = {
       name: form.name,
       category: form.category,
@@ -190,13 +301,22 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       cookTime: Number(form.cookTime),
       serves: Number(form.serves),
       imageUrl: form.imageUrl || null,
-      ingredients: form.ingredients
-        .filter((item) => item.ingredientId)
-        .map((item) => ({
-          ingredientId: item.ingredientId,
-          measurementId: item.measurementId || null,
-          amount: Number(item.amount || 0),
-        })),
+      ingredients: form.ingredients.reduce<RecipePayload["ingredients"]>((acc, row) => {
+        if (row.type === "section") {
+          currentSection = row.title.trim();
+          return acc;
+        }
+        if (!row.ingredientId) {
+          return acc;
+        }
+        acc.push({
+          ingredientId: row.ingredientId,
+          measurementId: row.measurementId || null,
+          amount: Number(row.amount || 0),
+          section: currentSection || null,
+        });
+        return acc;
+      }, []),
       steps: form.steps
         .filter((step) => step.text)
         .map((step, index) => ({
@@ -266,73 +386,321 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       />
 
       <h2>Ingredients</h2>
-      {form.ingredients.map((row, index) => (
-        <div key={`ingredient-${index}`} className="inline-row">
-          <select
-            value={row.ingredientId}
-            onChange={(event) =>
-              event.target.value === "__add_new__"
-                ? openAddModal("ingredient", index)
-                : updateIngredient(index, "ingredientId", event.target.value)
-            }
-          >
-            <option value="">Ingredient</option>
-            {ingredients.map((ingredient) => (
-              <option key={ingredient.id} value={ingredient.id}>
-                {ingredient.name}
-              </option>
-            ))}
-            <option value="__add_new__">Add new</option>
-          </select>
-          <select
-            value={row.measurementId}
-            onChange={(event) =>
-              event.target.value === "__add_new__"
-                ? openAddModal("measurement", index)
-                : updateIngredient(index, "measurementId", event.target.value)
-            }
-          >
-            <option value="">Measurement</option>
-            {measurements.map((measurement) => (
-              <option key={measurement.id} value={measurement.id}>
-                {measurement.name}
-              </option>
-            ))}
-            <option value="__add_new__">Add new</option>
-          </select>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={row.amount}
-            onChange={(event) => updateIngredient(index, "amount", event.target.value)}
-          />
-          <button
-            type="button"
-            className="admin-action danger"
-            onClick={() =>
-              setForm((prev) => ({
-                ...prev,
-                ingredients: prev.ingredients.filter((_, i) => i !== index),
-              }))
-            }
-          >
-            Remove
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="admin-action success"
-        onClick={() =>
-          setForm((prev) => ({
-            ...prev,
-            ingredients: [...prev.ingredients, emptyIngredientRow()],
-          }))
-        }
-      >
-        Add Ingredient
-      </button>
+      <div className="tiny-text">Click Add Section to insert a header, then add ingredients below it.</div>
+      {form.ingredients.map((row, index) =>
+        row.type === "section" ? (
+          <div key={`section-${index}`} className="inline-row">
+            <input
+              type="text"
+              placeholder="Section title"
+              value={row.title}
+              autoFocus={sectionFocusIndex === index}
+              onChange={(event) => updateSection(index, event.target.value)}
+            />
+            <button
+              type="button"
+              className="admin-action danger"
+              onClick={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  ingredients: prev.ingredients.filter((_, i) => i !== index),
+                }))
+              }
+            >
+              Remove section
+            </button>
+          </div>
+        ) : (
+          <div key={`ingredient-${index}`} className="inline-row">
+            <div className="combo-box">
+              {(() => {
+                const filtered = getFilteredIngredients(row.ingredientName);
+                const isActive =
+                  activeCombo.type === "ingredient" && activeCombo.index === index;
+                const highlight =
+                  comboHighlight.type === "ingredient" && comboHighlight.index === index
+                    ? comboHighlight.value
+                    : -1;
+                return (
+                  <>
+                    <input
+                      type="text"
+                      placeholder={
+                        newIngredientIndex === index
+                          ? "New ingredient name"
+                          : "Ingredient"
+                      }
+                      value={row.ingredientName}
+                      onFocus={() => openCombo("ingredient", index)}
+                      onBlur={() => setTimeout(closeCombo, 100)}
+                      onChange={(event) => {
+                        updateIngredient(index, "ingredientName", event.target.value);
+                        updateIngredient(index, "ingredientId", "");
+                        if (newIngredientIndex !== index) {
+                          if (!isActive) {
+                            openCombo("ingredient", index);
+                          }
+                          setComboHighlight({ type: "ingredient", index, value: 0 });
+                        }
+                      }}
+                      onKeyDownCapture={(event) => {
+                        if (newIngredientIndex === index) {
+                          return;
+                        }
+                        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          if (!isActive) {
+                            openCombo("ingredient", index);
+                          }
+                          if (!filtered.length) {
+                            return;
+                          }
+                          const next =
+                            event.key === "ArrowDown"
+                              ? highlight < 0
+                                ? 0
+                                : Math.min(highlight + 1, filtered.length - 1)
+                              : highlight <= 0
+                                ? 0
+                                : highlight - 1;
+                          setComboHighlight({ type: "ingredient", index, value: next });
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (newIngredientIndex === index) {
+                          return;
+                        }
+                        if (event.key === "Escape") {
+                          closeCombo();
+                          return;
+                        }
+                        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                          return;
+                        }
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          const target =
+                            highlight >= 0 ? filtered[highlight] : filtered[0];
+                          if (target) {
+                            updateIngredient(index, "ingredientId", target.id);
+                            updateIngredient(index, "ingredientName", target.name);
+                            closeCombo();
+                          }
+                        }
+                      }}
+                    />
+                    {newIngredientIndex !== index && isActive ? (
+                      <div className="combo-list">
+                        {filtered.map((item, itemIndex) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className={`combo-item${itemIndex === highlight ? " active" : ""}`}
+                            ref={itemIndex === highlight ? activeItemRef : null}
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              updateIngredient(index, "ingredientId", item.id);
+                              updateIngredient(index, "ingredientName", item.name);
+                              closeCombo();
+                            }}
+                          >
+                            {renderMatch(item.name, row.ingredientName)}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })()}
+            </div>
+            {newIngredientIndex === index ? (
+              <button
+                type="button"
+                className="admin-action primary"
+                onClick={handleAddIngredient}
+              >
+                Add
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="admin-action secondary icon-button"
+                onClick={() => toggleNewIngredient(index)}
+                aria-label="Add new ingredient"
+              >
+                +
+              </button>
+            )}
+            <div className="combo-box">
+              {(() => {
+                const filtered = getFilteredMeasurements(row.measurementName);
+                const isActive =
+                  activeCombo.type === "measurement" && activeCombo.index === index;
+                const highlight =
+                  comboHighlight.type === "measurement" && comboHighlight.index === index
+                    ? comboHighlight.value
+                    : -1;
+                return (
+                  <>
+                    <input
+                      type="text"
+                      placeholder={
+                        newMeasurementIndex === index
+                          ? "New measurement name"
+                          : "Measurement"
+                      }
+                      value={row.measurementName}
+                      onFocus={() => openCombo("measurement", index)}
+                      onBlur={() => setTimeout(closeCombo, 100)}
+                      onChange={(event) => {
+                        updateIngredient(index, "measurementName", event.target.value);
+                        updateIngredient(index, "measurementId", "");
+                        if (newMeasurementIndex !== index) {
+                          if (!isActive) {
+                            openCombo("measurement", index);
+                          }
+                          setComboHighlight({ type: "measurement", index, value: 0 });
+                        }
+                      }}
+                      onKeyDownCapture={(event) => {
+                        if (newMeasurementIndex === index) {
+                          return;
+                        }
+                        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          if (!isActive) {
+                            openCombo("measurement", index);
+                          }
+                          if (!filtered.length) {
+                            return;
+                          }
+                          const next =
+                            event.key === "ArrowDown"
+                              ? highlight < 0
+                                ? 0
+                                : Math.min(highlight + 1, filtered.length - 1)
+                              : highlight <= 0
+                                ? 0
+                                : highlight - 1;
+                          setComboHighlight({ type: "measurement", index, value: next });
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (newMeasurementIndex === index) {
+                          return;
+                        }
+                        if (event.key === "Escape") {
+                          closeCombo();
+                          return;
+                        }
+                        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                          return;
+                        }
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          const target =
+                            highlight >= 0 ? filtered[highlight] : filtered[0];
+                          if (target) {
+                            updateIngredient(index, "measurementId", target.id);
+                            updateIngredient(index, "measurementName", target.name);
+                            closeCombo();
+                          }
+                        }
+                      }}
+                    />
+                    {newMeasurementIndex !== index && isActive ? (
+                      <div className="combo-list">
+                        {filtered.map((item, itemIndex) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className={`combo-item${itemIndex === highlight ? " active" : ""}`}
+                            ref={itemIndex === highlight ? activeItemRef : null}
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              updateIngredient(index, "measurementId", item.id);
+                              updateIngredient(index, "measurementName", item.name);
+                              closeCombo();
+                            }}
+                          >
+                            {renderMatch(item.name, row.measurementName)}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </>
+                );
+              })()}
+            </div>
+            {newMeasurementIndex === index ? (
+              <button
+                type="button"
+                className="admin-action primary"
+                onClick={handleAddMeasurement}
+              >
+                Add
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="admin-action secondary icon-button"
+                onClick={() => toggleNewMeasurement(index)}
+                aria-label="Add new measurement"
+              >
+                +
+              </button>
+            )}
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={row.amount}
+              onChange={(event) => updateIngredient(index, "amount", event.target.value)}
+            />
+            <button
+              type="button"
+              className="admin-action danger"
+              onClick={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  ingredients: prev.ingredients.filter((_, i) => i !== index),
+                }))
+              }
+            >
+              Remove
+            </button>
+          </div>
+        )
+      )}
+      <div className="ingredient-actions">
+        <button
+          type="button"
+          className="admin-action success"
+          onClick={() =>
+            setForm((prev) => ({
+              ...prev,
+              ingredients: [...prev.ingredients, emptyIngredientRow()],
+            }))
+          }
+        >
+          Add Ingredient
+        </button>
+        <button
+          type="button"
+          className="admin-action secondary"
+          onClick={() =>
+            setForm((prev) => {
+              const next = [...prev.ingredients, emptySectionRow()];
+              setSectionFocusIndex(next.length - 1);
+              return { ...prev, ingredients: next };
+            })
+          }
+        >
+          Add Section
+        </button>
+      </div>
 
       <h2>Instructions</h2>
       {form.steps.map((step, index) => (
@@ -400,33 +768,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         </button>
       </div>
 
-      {modal.type ? (
-        <div className="modal-backdrop" role="presentation" onClick={closeAddModal}>
-          <div
-            className="modal"
-            role="dialog"
-            aria-modal="true"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h3>{modal.type === "ingredient" ? "Add Ingredient" : "Add Measurement"}</h3>
-            <input
-              type="text"
-              value={modal.name}
-              onChange={(event) =>
-                setModal((prev) => ({ ...prev, name: event.target.value }))
-              }
-            />
-            <div className="inline-row">
-              <button type="button" className="admin-action success" onClick={handleModalSave}>
-                Add
-              </button>
-              <button type="button" className="admin-action secondary" onClick={closeAddModal}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {null}
     </div>
   );
 };

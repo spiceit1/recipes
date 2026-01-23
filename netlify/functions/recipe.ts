@@ -49,6 +49,7 @@ export const handler: Handler = async (event) => {
             ingredientId: item.ingredientId,
             measurementId: item.measurementId || null,
             amount: Number(item.amount || 0),
+            section: item.section || null,
           })),
         },
         steps: {
@@ -88,6 +89,7 @@ export const handler: Handler = async (event) => {
             ingredientId: item.ingredientId,
             measurementId: item.measurementId || null,
             amount: Number(item.amount || 0),
+            section: item.section || null,
           })),
         },
         steps: {
