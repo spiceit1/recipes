@@ -309,6 +309,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
           />
           <button
             type="button"
+            className="admin-action danger"
             onClick={() =>
               setForm((prev) => ({
                 ...prev,
@@ -322,6 +323,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       ))}
       <button
         type="button"
+        className="admin-action success"
         onClick={() =>
           setForm((prev) => ({
             ...prev,
@@ -345,14 +347,23 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             onChange={(value) => updateStep(index, "imageUrl", value)}
           />
           <div className="inline-row">
-            <button type="button" onClick={() => moveStep(index, -1)}>
+            <button
+              type="button"
+              className="admin-action secondary"
+              onClick={() => moveStep(index, -1)}
+            >
               Up
             </button>
-            <button type="button" onClick={() => moveStep(index, 1)}>
+            <button
+              type="button"
+              className="admin-action secondary"
+              onClick={() => moveStep(index, 1)}
+            >
               Down
             </button>
             <button
               type="button"
+              className="admin-action danger"
               onClick={() =>
                 setForm((prev) => ({
                   ...prev,
@@ -367,6 +378,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       ))}
       <button
         type="button"
+        className="admin-action success"
         onClick={() =>
           setForm((prev) => ({ ...prev, steps: [...prev.steps, emptyStepRow()] }))
         }
@@ -375,10 +387,15 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       </button>
 
       <div className="inline-row">
-        <button type="button" onClick={handleSave} disabled={isSaving}>
+        <button
+          type="button"
+          className="admin-action primary"
+          onClick={handleSave}
+          disabled={isSaving}
+        >
           {isSaving ? "Saving..." : "Save Recipe"}
         </button>
-        <button type="button" onClick={onCancel}>
+        <button type="button" className="admin-action secondary" onClick={onCancel}>
           Close
         </button>
       </div>
@@ -400,10 +417,10 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
               }
             />
             <div className="inline-row">
-              <button type="button" onClick={handleModalSave}>
+              <button type="button" className="admin-action success" onClick={handleModalSave}>
                 Add
               </button>
-              <button type="button" onClick={closeAddModal}>
+              <button type="button" className="admin-action secondary" onClick={closeAddModal}>
                 Cancel
               </button>
             </div>

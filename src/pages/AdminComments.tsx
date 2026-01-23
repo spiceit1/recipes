@@ -61,7 +61,17 @@ const AdminComments = () => {
                 </div>
                 <div>{comment.comment}</div>
               </div>
-              <button type="button" onClick={() => handleDelete(comment.id)}>
+              <button
+                type="button"
+                className="admin-action danger"
+                onClick={() => handleDelete(comment.id)}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="currentColor"
+                    d="M6 7h12l-1 14H7L6 7Zm3-3h6l1 2H8l1-2Zm-2 2h10v2H7V6Z"
+                  />
+                </svg>
                 Delete
               </button>
             </div>

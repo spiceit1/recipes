@@ -100,7 +100,11 @@ const App = () => {
             <button type="button" className="admin-toggle" onClick={handleToggleView}>
               {adminView ? "Customer View" : "Admin View"}
             </button>
-            <button type="button" className="admin-button" onClick={handleAdminExit}>
+            <button
+              type="button"
+              className="admin-button dark"
+              onClick={handleAdminExit}
+            >
               Exit Admin
             </button>
           </div>

@@ -122,6 +122,12 @@ const AdminRecipes = () => {
       <div className="admin-header-row">
         <h1>Recipes</h1>
         <button type="button" className="admin-button" onClick={openAdd}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"
+            />
+          </svg>
           Add Recipe
         </button>
       </div>
@@ -146,10 +152,30 @@ const AdminRecipes = () => {
                 </div>
               </div>
               <div className="admin-actions">
-                <button type="button" onClick={() => openEdit(recipe.id)}>
+                <button
+                  type="button"
+                  className="admin-action primary"
+                  onClick={() => openEdit(recipe.id)}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M3 17.25V21h3.75L19.81 7.94l-3.75-3.75L3 17.25Zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 2-1.66Z"
+                    />
+                  </svg>
                   Edit
                 </button>
-                <button type="button" onClick={() => handleDelete(recipe)}>
+                <button
+                  type="button"
+                  className="admin-action danger"
+                  onClick={() => handleDelete(recipe)}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M6 7h12l-1 14H7L6 7Zm3-3h6l1 2H8l1-2Zm-2 2h10v2H7V6Z"
+                    />
+                  </svg>
                   Delete
                 </button>
                 <label className="toggle-switch">
