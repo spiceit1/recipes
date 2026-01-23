@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import { api } from "../lib/api";
 import ImageUploader from "./ImageUploader";
 import { CATEGORIES } from "../lib/constants";
@@ -56,7 +57,6 @@ type ModalState = {
   type: "" | "ingredient" | "measurement";
   index: number | null;
   name: string;
-  error: string;
 };
 
 const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
@@ -64,12 +64,10 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [form, setForm] = useState<RecipeFormState>(buildFormState(recipe));
   const [isSaving, setIsSaving] = useState(false);
-  const [formError, setFormError] = useState("");
   const [modal, setModal] = useState<ModalState>({
     type: "",
     index: null,
     name: "",
-    error: "",
   });
   const formRef = useRef(null);
 
@@ -133,11 +131,11 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
   };
 
   const openAddModal = (type: ModalState["type"], index: number) => {
-    setModal({ type, index, name: "", error: "" });
+    setModal({ type, index, name: "" });
   };
 
   const closeAddModal = () => {
-    setModal({ type: "", index: null, name: "", error: "" });
+    setModal({ type: "", index: null, name: "" });
   };
 
   const handleModalSave = async () => {
@@ -146,7 +144,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     }
     const trimmed = modal.name.trim();
     if (!trimmed) {
-      setModal((prev) => ({ ...prev, error: "Name required" }));
+      toast.error("Name required.");
       return;
     }
     try {
@@ -156,6 +154,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         });
         setIngredients((prev) => [...prev, created]);
         updateIngredient(modal.index, "ingredientId", created.id);
+        toast.success("Ingredient added.");
       }
       if (modal.type === "measurement") {
         const created = await api.createMeasurement({
@@ -163,27 +162,27 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         });
         setMeasurements((prev) => [...prev, created]);
         updateIngredient(modal.index, "measurementId", created.id);
+        toast.success("Measurement added.");
       }
       closeAddModal();
     } catch (error) {
       if (error.message?.toLowerCase().includes("already exists")) {
-        setModal((prev) => ({ ...prev, error: "Already exists" }));
+        toast.error("Already exists.");
         return;
       }
-      setModal((prev) => ({ ...prev, error: "Unable to add" }));
+      toast.error("Unable to add.");
     }
   };
 
   const handleSave = async () => {
     if (!form.name || !form.category) {
-      setFormError("Recipe name and category are required.");
+      toast.error("Recipe name and category are required.");
       const modalNode = formRef.current?.closest(".modal");
       if (modalNode) {
         modalNode.scrollTo({ top: 0, behavior: "smooth" });
       }
       return;
     }
-    setFormError("");
     const payload: RecipePayload = {
       name: form.name,
       category: form.category,
@@ -236,8 +235,6 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
           </option>
         ))}
       </select>
-      {formError ? <div className="inline-message">{formError}</div> : null}
-
       <label className="field-label">Prep time (minutes)</label>
       <input
         type="number"
@@ -399,10 +396,9 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
               type="text"
               value={modal.name}
               onChange={(event) =>
-                setModal((prev) => ({ ...prev, name: event.target.value, error: "" }))
+                setModal((prev) => ({ ...prev, name: event.target.value }))
               }
             />
-            {modal.error ? <div className="inline-message">{modal.error}</div> : null}
             <div className="inline-row">
               <button type="button" onClick={handleModalSave}>
                 Add

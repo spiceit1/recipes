@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { api } from "../lib/api";
 import ConfirmModal from "../components/ConfirmModal";
 import EmptyState from "../components/EmptyState";
@@ -8,7 +9,6 @@ import type { Ingredient, RecipeSummary } from "../lib/types";
 const AdminIngredients = () => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
   const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState("");
   const [editingName, setEditingName] = useState("");
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(
@@ -38,20 +38,20 @@ const AdminIngredients = () => {
     if (!trimmed) {
       return;
     }
-    setMessage("");
     try {
       await api.createIngredient({
         name: trimmed,
         caloriesPerUnit: 0,
       });
       setName("");
+      toast.success("Ingredient added.");
       load();
     } catch (error) {
       if (error.message?.toLowerCase().includes("already exists")) {
-        setMessage("Already exists");
+        toast.error("Ingredient already exists.");
         return;
       }
-      setMessage("Unable to add ingredient");
+      toast.error("Unable to add ingredient.");
     }
   };
 
@@ -68,7 +68,6 @@ const AdminIngredients = () => {
   const handleEdit = (item: Ingredient) => {
     setEditingId(item.id);
     setEditingName(item.name);
-    setMessage("");
   };
 
   const handleSaveEdit = async () => {
@@ -83,12 +82,13 @@ const AdminIngredients = () => {
       await handleUpdate(editingId, "name", trimmed);
       setEditingId("");
       setEditingName("");
+      toast.success("Ingredient updated.");
     } catch (error) {
       if (error.message?.toLowerCase().includes("already exists")) {
-        setMessage("Already exists");
+        toast.error("Ingredient already exists.");
         return;
       }
-      setMessage("Unable to update ingredient");
+      toast.error("Unable to update ingredient.");
     }
   };
 
@@ -108,6 +108,7 @@ const AdminIngredients = () => {
     }
     await api.deleteIngredient(pendingDelete.id);
     setPendingDelete(null);
+    toast.success("Ingredient deleted.");
     load();
   };
 
@@ -138,7 +139,6 @@ const AdminIngredients = () => {
             Add
           </button>
         </div>
-        {message ? <div className="inline-message">{message}</div> : null}
       </div>
       {!ingredients.length ? (
         <EmptyState message="No ingredients yet" />

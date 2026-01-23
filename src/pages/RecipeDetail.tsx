@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { api } from "../lib/api";
 import IngredientScaler from "../components/IngredientScaler";
 import ClipboardExporter from "../components/ClipboardExporter";
@@ -29,8 +30,6 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
     rating: 0,
     text: "",
   });
-  const [commentError, setCommentError] = useState("");
-  const [commentSuccess, setCommentSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -60,12 +59,10 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!comment.name || !comment.email || !comment.rating) {
-      setCommentError("Rating is required.");
-      setCommentSuccess("");
+      toast.error("Rating is required.");
       return;
     }
     setIsSubmitting(true);
-    setCommentError("");
     try {
       await api.postComment({
         recipeId: id,
@@ -75,7 +72,9 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
         comment: comment.text,
       });
       setComment({ name: "", email: "", rating: 0, text: "" });
-      setCommentSuccess("Thank you for your Rating/Comment");
+      toast.success("Thank you for your rating and comment.");
+    } catch (error) {
+      toast.error("Unable to submit comment.");
     } finally {
       setIsSubmitting(false);
     }
@@ -185,10 +184,6 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
               </button>
             ))}
           </div>
-          {commentError ? <div className="inline-message">{commentError}</div> : null}
-          {commentSuccess ? (
-            <div className="inline-message success">{commentSuccess}</div>
-          ) : null}
         </div>
         <label className="field-label" htmlFor="comment-text">
           Comment (optional)

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import ConfirmModal from "../components/ConfirmModal";
@@ -61,8 +62,10 @@ const AdminRecipes = () => {
   const handleSave = async (payload: RecipePayload) => {
     if (activeRecipe?.id) {
       await api.updateRecipe(activeRecipe.id, payload);
+      toast.success("Recipe updated.");
     } else {
       await api.createRecipe(payload);
+      toast.success("Recipe created.");
     }
     closeModal();
     loadRecipes();
@@ -78,12 +81,35 @@ const AdminRecipes = () => {
     }
     await api.deleteRecipe(pendingDelete.id);
     setPendingDelete(null);
+    toast.success("Recipe deleted.");
     loadRecipes();
   };
 
   const handleToggle = async (id: string, published: boolean) => {
-    await api.publishRecipe(id, published);
-    loadRecipes();
+    const previous = recipes.find((recipe) => recipe.id === id);
+    setRecipes((prev) =>
+      prev.map((recipe) => (recipe.id === id ? { ...recipe, published } : recipe))
+    );
+    try {
+      const updated = await api.publishRecipe(id, published);
+      setRecipes((prev) =>
+        prev.map((recipe) =>
+          recipe.id === id
+            ? { ...recipe, published: updated?.published ?? published }
+            : recipe
+        )
+      );
+      toast.success(published ? "Recipe activated." : "Recipe deactivated.");
+    } catch (error) {
+      setRecipes((prev) =>
+        prev.map((recipe) =>
+          recipe.id === id
+            ? { ...recipe, published: previous?.published ?? !published }
+            : recipe
+        )
+      );
+      toast.error("Unable to update recipe status.");
+    }
   };
 
 

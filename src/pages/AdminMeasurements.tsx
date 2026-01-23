@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { api } from "../lib/api";
 import ConfirmModal from "../components/ConfirmModal";
 import EmptyState from "../components/EmptyState";
@@ -7,7 +8,6 @@ import type { Measurement } from "../lib/types";
 const AdminMeasurements = () => {
   const [measurements, setMeasurements] = useState<Measurement[]>([]);
   const [name, setName] = useState("");
-  const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState("");
   const [editingName, setEditingName] = useState("");
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(
@@ -28,20 +28,20 @@ const AdminMeasurements = () => {
     if (!trimmed) {
       return;
     }
-    setMessage("");
     try {
       await api.createMeasurement({
         name: trimmed,
         conversionFactor: 0,
       });
       setName("");
+      toast.success("Measurement added.");
       load();
     } catch (error) {
       if (error.message?.toLowerCase().includes("already exists")) {
-        setMessage("Already exists");
+        toast.error("Measurement already exists.");
         return;
       }
-      setMessage("Unable to add measurement");
+      toast.error("Unable to add measurement.");
     }
   };
 
@@ -58,7 +58,6 @@ const AdminMeasurements = () => {
   const handleEdit = (item: Measurement) => {
     setEditingId(item.id);
     setEditingName(item.name);
-    setMessage("");
   };
 
   const handleSaveEdit = async () => {
@@ -73,12 +72,13 @@ const AdminMeasurements = () => {
       await handleUpdate(editingId, "name", trimmed);
       setEditingId("");
       setEditingName("");
+      toast.success("Measurement updated.");
     } catch (error) {
       if (error.message?.toLowerCase().includes("already exists")) {
-        setMessage("Already exists");
+        toast.error("Measurement already exists.");
         return;
       }
-      setMessage("Unable to update measurement");
+      toast.error("Unable to update measurement.");
     }
   };
 
@@ -98,6 +98,7 @@ const AdminMeasurements = () => {
     }
     await api.deleteMeasurement(pendingDelete.id);
     setPendingDelete(null);
+    toast.success("Measurement deleted.");
     load();
   };
 
@@ -115,7 +116,6 @@ const AdminMeasurements = () => {
             Add
           </button>
         </div>
-        {message ? <div className="inline-message">{message}</div> : null}
       </div>
       {!measurements.length ? (
         <EmptyState message="No measurements yet" />
