@@ -92,7 +92,6 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     value: number;
   }>({ type: null, index: null, value: -1 });
   const activeItemRef = useRef<HTMLButtonElement | null>(null);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
   const formRef = useRef(null);
 
   useEffect(() => {
@@ -413,46 +412,29 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       <div className="tiny-text">Click Add Section to insert a header, then add ingredients below it.</div>
       {form.ingredients.map((row, index) =>
         row.type === "section" ? (
-          <div
-            key={`section-${index}`}
-            className="inline-row ingredient-row"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={(event) => {
-              event.preventDefault();
-              if (dragIndex === null) {
-                return;
-              }
-              moveIngredientRow(dragIndex, index);
-              setDragIndex(null);
-            }}
-          >
-            <button
-              type="button"
-              className="drag-handle"
-              draggable
-              onDragStart={(event) => {
-                event.dataTransfer.effectAllowed = "move";
-                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
-                if (row) {
-                  const rect = row.getBoundingClientRect();
-                  event.dataTransfer.setDragImage(
-                    row,
-                    event.clientX - rect.left,
-                    event.clientY - rect.top
-                  );
-                  row.classList.add("dragging");
-                }
-                setDragIndex(index);
-              }}
-              onDragEnd={(event) => {
-                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
-                row?.classList.remove("dragging");
-                setDragIndex(null);
-              }}
-              aria-label="Drag to reorder"
-            >
-              ≡
-            </button>
+          <div key={`section-${index}`} className="inline-row ingredient-row">
+            <div className="row-reorder">
+              {index > 0 ? (
+                <button
+                  type="button"
+                  className="admin-action secondary icon-button"
+                  onClick={() => moveIngredientRow(index, index - 1)}
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+              ) : null}
+              {index < form.ingredients.length - 1 ? (
+                <button
+                  type="button"
+                  className="admin-action secondary icon-button"
+                  onClick={() => moveIngredientRow(index, index + 1)}
+                  aria-label="Move down"
+                >
+                  ↓
+                </button>
+              ) : null}
+            </div>
             <input
               type="text"
               placeholder="Section title"
@@ -474,46 +456,38 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             </button>
           </div>
         ) : (
-          <div
-            key={`ingredient-${index}`}
-            className="inline-row ingredient-row"
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={(event) => {
-              event.preventDefault();
-              if (dragIndex === null) {
-                return;
-              }
-              moveIngredientRow(dragIndex, index);
-              setDragIndex(null);
-            }}
-          >
-            <button
-              type="button"
-              className="drag-handle"
-              draggable
-              onDragStart={(event) => {
-                event.dataTransfer.effectAllowed = "move";
-                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
-                if (row) {
-                  const rect = row.getBoundingClientRect();
-                  event.dataTransfer.setDragImage(
-                    row,
-                    event.clientX - rect.left,
-                    event.clientY - rect.top
-                  );
-                  row.classList.add("dragging");
-                }
-                setDragIndex(index);
-              }}
-              onDragEnd={(event) => {
-                const row = (event.currentTarget as HTMLElement).closest(".ingredient-row");
-                row?.classList.remove("dragging");
-                setDragIndex(null);
-              }}
-              aria-label="Drag to reorder"
-            >
-              ≡
-            </button>
+          <div key={`ingredient-${index}`} className="inline-row ingredient-row">
+            <div className="row-reorder">
+              {index > 0 ? (
+                <button
+                  type="button"
+                  className="admin-action secondary icon-button"
+                  onClick={() => moveIngredientRow(index, index - 1)}
+                  aria-label="Move up"
+                >
+                  ↑
+                </button>
+              ) : null}
+              {index < form.ingredients.length - 1 ? (
+                <button
+                  type="button"
+                  className="admin-action secondary icon-button"
+                  onClick={() => moveIngredientRow(index, index + 1)}
+                  aria-label="Move down"
+                >
+                  ↓
+                </button>
+              ) : null}
+            </div>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              className="qty-input"
+              placeholder="Qty"
+              value={row.amount}
+              onChange={(event) => updateIngredient(index, "amount", event.target.value)}
+            />
             <div className="combo-box">
               {(() => {
                 const filtered = getFilteredIngredients(row.ingredientName);
@@ -754,13 +728,6 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
                 +
               </button>
             )}
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={row.amount}
-              onChange={(event) => updateIngredient(index, "amount", event.target.value)}
-            />
             <button
               type="button"
               className="admin-action danger"

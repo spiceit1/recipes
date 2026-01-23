@@ -651,25 +651,25 @@ textarea {
   align-items: center;
 }
 
-.ingredient-row.dragging {
-  opacity: 0.6;
-}
-
-.drag-handle {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid #1d1d1d;
-  background: #fff;
-  color: #1d1d1d;
+.row-reorder {
   display: inline-flex;
+  gap: 0.4rem;
   align-items: center;
-  justify-content: center;
-  cursor: grab;
 }
 
-.drag-handle:active {
-  cursor: grabbing;
+.qty-input {
+  width: 7ch;
+  text-align: center;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.qty-input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .combo-box {
