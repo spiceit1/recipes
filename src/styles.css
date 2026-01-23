@@ -649,6 +649,20 @@ textarea {
 
 .ingredient-row {
   align-items: center;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ingredient-row.ingredient-item {
+  grid-template-columns: 72px 7ch minmax(140px, 1fr) 36px minmax(140px, 1fr) 36px 90px;
+}
+
+.ingredient-row.section-row {
+  grid-template-columns: 72px minmax(160px, 1fr) 120px;
+}
+
+.ingredient-row.section-row input {
+  width: 100%;
 }
 
 .row-reorder {

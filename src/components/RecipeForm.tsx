@@ -412,7 +412,7 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
       <div className="tiny-text">Click Add Section to insert a header, then add ingredients below it.</div>
       {form.ingredients.map((row, index) =>
         row.type === "section" ? (
-          <div key={`section-${index}`} className="inline-row ingredient-row">
+          <div key={`section-${index}`} className="inline-row ingredient-row section-row">
             <div className="row-reorder">
               {index > 0 ? (
                 <button
@@ -445,18 +445,24 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             <button
               type="button"
               className="admin-action danger"
-              onClick={() =>
+              onClick={() => {
                 setForm((prev) => ({
                   ...prev,
                   ingredients: prev.ingredients.filter((_, i) => i !== index),
-                }))
-              }
+                }));
+                if (newIngredientIndex === index) {
+                  setNewIngredientIndex(null);
+                }
+                if (newMeasurementIndex === index) {
+                  setNewMeasurementIndex(null);
+                }
+              }}
             >
               Remove section
             </button>
           </div>
         ) : (
-          <div key={`ingredient-${index}`} className="inline-row ingredient-row">
+          <div key={`ingredient-${index}`} className="inline-row ingredient-row ingredient-item">
             <div className="row-reorder">
               {index > 0 ? (
                 <button
@@ -731,12 +737,18 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             <button
               type="button"
               className="admin-action danger"
-              onClick={() =>
+              onClick={() => {
                 setForm((prev) => ({
                   ...prev,
                   ingredients: prev.ingredients.filter((_, i) => i !== index),
-                }))
-              }
+                }));
+                if (newIngredientIndex === index) {
+                  setNewIngredientIndex(null);
+                }
+                if (newMeasurementIndex === index) {
+                  setNewMeasurementIndex(null);
+                }
+              }}
             >
               Remove
             </button>
@@ -747,12 +759,14 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         <button
           type="button"
           className="admin-action success"
-          onClick={() =>
+          onClick={() => {
+            setNewIngredientIndex(null);
+            setNewMeasurementIndex(null);
             setForm((prev) => ({
               ...prev,
               ingredients: [...prev.ingredients, emptyIngredientRow()],
-            }))
-          }
+            }));
+          }}
         >
           Add Ingredient
         </button>
@@ -761,6 +775,8 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
           className="admin-action secondary"
           onClick={() =>
             setForm((prev) => {
+              setNewIngredientIndex(null);
+              setNewMeasurementIndex(null);
               const next = [...prev.ingredients, emptySectionRow()];
               setSectionFocusIndex(next.length - 1);
               return { ...prev, ingredients: next };
