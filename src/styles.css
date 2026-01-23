@@ -112,6 +112,7 @@ textarea {
 .admin-button {
   padding: 0.6rem 1.2rem;
   border-radius: 999px;
+  border: none;
   background: #26a052;
   color: #fff;
   font-weight: 600;
@@ -300,11 +301,20 @@ textarea {
   background: #fff;
   border-radius: 999px;
   padding: 0.45rem 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .ingredient-scaler button:hover,
 .ghost-button:hover {
   background: #f1f1f1;
+}
+
+.ghost-button svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 .ingredient-scaler .active {

@@ -36,6 +36,7 @@ const AdminIngredients = () => {
   const handleCreate = async () => {
     const trimmed = name.trim();
     if (!trimmed) {
+      toast.error("Enter an ingredient name.");
       return;
     }
     try {
@@ -133,9 +134,21 @@ const AdminIngredients = () => {
           <input
             type="text"
             value={name}
+            placeholder="Ingredient name"
             onChange={(event) => setName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                handleCreate();
+              }
+            }}
           />
-          <button type="button" className="admin-action success" onClick={handleCreate}>
+          <button
+            type="button"
+            className="admin-action success"
+            onClick={handleCreate}
+            disabled={!name.trim()}
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="currentColor"

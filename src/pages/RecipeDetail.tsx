@@ -195,7 +195,7 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
             setComment((prev) => ({ ...prev, text: event.target.value }))
           }
         />
-        <button type="submit" disabled={isSubmitting}>
+        <button type="submit" className="admin-action success" disabled={isSubmitting}>
           {isSubmitting ? "Sending..." : "Submit"}
         </button>
       </form>

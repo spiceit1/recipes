@@ -83,6 +83,12 @@ const PDFExporter = ({ recipe }: PDFExporterProps) => {
 
   return (
     <button type="button" className="ghost-button" onClick={handleExport}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Zm4 18H6V4h7v5h5v11ZM8 13h2.5a2.5 2.5 0 0 0 0-5H8v5Zm2.5-3a.5.5 0 0 1 0 1H10v-1h.5ZM12 13h2.5a2.5 2.5 0 0 0 0-5H12v5Zm2.5-3a.5.5 0 0 1 0 1H14v-1h.5ZM16 13h2v-1h-2V8h-1v5Z"
+        />
+      </svg>
       Download as PDF
     </button>
   );
