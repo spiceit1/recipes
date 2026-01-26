@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
+import { getCachedRecipes, setCachedRecipes } from "../lib/recipeCache";
 import EmptyState from "../components/EmptyState";
 import type { RecipeSummary } from "../lib/types";
 
 const AdminDashboard = () => {
-  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cacheKey = "admin:recipes";
+  const cachedRecipes = getCachedRecipes(cacheKey);
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(cachedRecipes ?? []);
+  const [isLoading, setIsLoading] = useState(!cachedRecipes);
   const navigate = useNavigate();
 
   const load = async () => {
-    setIsLoading(true);
+    const cached = getCachedRecipes(cacheKey);
+    if (cached) {
+      setRecipes(cached);
+    }
+    setIsLoading(!cached);
     try {
       const data = await api.getRecipes(true);
-      setRecipes(data || []);
+      const next = data || [];
+      setCachedRecipes(cacheKey, next);
+      setRecipes(next);
     } finally {
       setIsLoading(false);
     }

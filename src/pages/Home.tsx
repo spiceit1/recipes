@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../lib/api";
+import { getCachedRecipes, setCachedRecipes } from "../lib/recipeCache";
 import RecipeCard from "../components/RecipeCard";
 import RecipeFilters from "../components/RecipeFilters";
 import EmptyState from "../components/EmptyState";
@@ -11,24 +12,34 @@ type HomeProps = {
 };
 
 const Home = ({ searchQuery }: HomeProps) => {
-  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
+  const cacheKey = searchQuery ? `public:search:${searchQuery}` : "public:all";
+  const cachedRecipes = getCachedRecipes(cacheKey);
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(cachedRecipes ?? []);
   const [activeCategory, setActiveCategory] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cachedRecipes);
 
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
-      setIsLoading(true);
+      const cached = getCachedRecipes(cacheKey);
+      if (cached) {
+        setRecipes(cached);
+      }
+      setIsLoading(!cached);
       try {
         const data = searchQuery
           ? await api.searchRecipes(searchQuery)
           : await api.getRecipes(false);
         if (isMounted) {
-          setRecipes(data || []);
+          const next = data || [];
+          setCachedRecipes(cacheKey, next);
+          setRecipes(next);
         }
       } catch (error) {
         if (isMounted) {
-          setRecipes([]);
+          if (!getCachedRecipes(cacheKey)) {
+            setRecipes([]);
+          }
         }
       } finally {
         if (isMounted) {
@@ -40,7 +51,7 @@ const Home = ({ searchQuery }: HomeProps) => {
     return () => {
       isMounted = false;
     };
-  }, [searchQuery]);
+  }, [cacheKey, searchQuery]);
 
   const visibleRecipes = useMemo(() => {
     if (!activeCategory) {

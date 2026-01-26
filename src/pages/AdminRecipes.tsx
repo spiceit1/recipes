@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
+import { getCachedRecipes, setCachedRecipes } from "../lib/recipeCache";
 import ConfirmModal from "../components/ConfirmModal";
 import RecipeForm from "../components/RecipeForm";
 import type { Recipe, RecipePayload, RecipeSummary } from "../lib/types";
 
 const AdminRecipes = () => {
-  const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cacheKey = "admin:recipes";
+  const cachedRecipes = getCachedRecipes(cacheKey);
+  const [recipes, setRecipes] = useState<RecipeSummary[]>(cachedRecipes ?? []);
+  const [isLoading, setIsLoading] = useState(!cachedRecipes);
   const [modalOpen, setModalOpen] = useState(false);
   const [activeRecipe, setActiveRecipe] = useState<Recipe | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(
@@ -17,10 +20,16 @@ const AdminRecipes = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const loadRecipes = async () => {
-    setIsLoading(true);
+    const cached = getCachedRecipes(cacheKey);
+    if (cached) {
+      setRecipes(cached);
+    }
+    setIsLoading(!cached);
     try {
       const data = await api.getRecipes(true);
-      setRecipes(data || []);
+      const next = data || [];
+      setCachedRecipes(cacheKey, next);
+      setRecipes(next);
     } finally {
       setIsLoading(false);
     }
