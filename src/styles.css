@@ -253,6 +253,29 @@ textarea {
   border-radius: 12px;
 }
 
+.instruction-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.instruction-text p {
+  margin: 0;
+}
+
+.instruction-title strong {
+  font-weight: 700;
+}
+
+.instruction-list {
+  margin: 0 0 0.35rem 1.25rem;
+  padding: 0;
+}
+
+.instruction-list li {
+  margin: 0.35rem 0;
+}
+
 .image-placeholder.large {
   width: 280px;
   height: 200px;

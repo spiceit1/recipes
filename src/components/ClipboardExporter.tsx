@@ -5,6 +5,30 @@ type ClipboardExporterProps = {
 };
 
 const ClipboardExporter = ({ recipe }: ClipboardExporterProps) => {
+  const formatInstructionText = (text: string) => {
+    const lines = text.split(/\r?\n/);
+    const output: string[] = [];
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        output.push("");
+        return;
+      }
+      if (/^[-•]\s+/.test(trimmed)) {
+        output.push(`  - ${trimmed.replace(/^[-•]\s+/, "")}`);
+        return;
+      }
+      if (/^\d+\.\s+.+/.test(trimmed)) {
+        output.push(`**${trimmed}**`);
+        return;
+      }
+      output.push(trimmed);
+    });
+
+    return output;
+  };
+
   const buildText = () => {
     if (!recipe) {
       return "";
@@ -26,7 +50,7 @@ const ClipboardExporter = ({ recipe }: ClipboardExporterProps) => {
       "Instructions:",
       ...steps
         .sort((a, b) => a.stepNumber - b.stepNumber)
-        .map((step, index) => `${index + 1}. ${step.text}`),
+        .flatMap((step) => formatInstructionText(step.text)),
       "",
       `Prep: ${recipe.prepTime} min`,
       `Cook: ${recipe.cookTime} min`,

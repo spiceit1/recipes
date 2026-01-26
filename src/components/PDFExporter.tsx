@@ -6,6 +6,14 @@ type PDFExporterProps = {
 };
 
 const PDFExporter = ({ recipe }: PDFExporterProps) => {
+  const getInstructionLines = (text: string) => {
+    return text.split(/\r?\n/).map((line) => line.trim());
+  };
+
+  const isBulletLine = (line: string) => /^[-•]\s+/.test(line);
+  const isNumberedLine = (line: string) => /^\d+\.\s+.+/.test(line);
+  const formatBulletLine = (line: string) => `• ${line.replace(/^[-•]\s+/, "")}`;
+
   const handleExport = async () => {
     if (!recipe) {
       return;
@@ -66,9 +74,29 @@ const PDFExporter = ({ recipe }: PDFExporterProps) => {
     doc.setFontSize(11);
     (recipe.steps || [])
       .sort((a, b) => a.stepNumber - b.stepNumber)
-      .forEach((step, index) => {
-        doc.text(`${index + 1}. ${step.text}`, 14, y);
-        y += 5;
+      .forEach((step) => {
+        const lines = getInstructionLines(step.text);
+        lines.forEach((line) => {
+          if (!line) {
+            y += 3;
+            return;
+          }
+          if (isNumberedLine(line)) {
+            doc.setFont("helvetica", "bold");
+            doc.text(line, 14, y);
+            doc.setFont("helvetica", "normal");
+            y += 6;
+            return;
+          }
+          if (isBulletLine(line)) {
+            doc.text(formatBulletLine(line), 18, y);
+            y += 5;
+            return;
+          }
+          doc.text(line, 14, y);
+          y += 5;
+        });
+        y += 2;
       });
 
     y += 6;

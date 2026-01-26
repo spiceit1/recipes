@@ -210,18 +210,6 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
     });
   };
 
-  const moveStep = (index: number, direction: number) => {
-    setForm((prev) => {
-      const next = [...prev.steps];
-      const target = index + direction;
-      if (target < 0 || target >= next.length) {
-        return prev;
-      }
-      [next[index], next[target]] = [next[target], next[index]];
-      return { ...prev, steps: next };
-    });
-  };
-
   const moveIngredientRow = (fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) {
       return;
@@ -794,50 +782,8 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
             value={step.text}
             onChange={(event) => updateStep(index, "text", event.target.value)}
           />
-          <ImageUploader
-            label="Step image"
-            value={step.imageUrl}
-            onChange={(value) => updateStep(index, "imageUrl", value)}
-          />
-          <div className="inline-row">
-            <button
-              type="button"
-              className="admin-action secondary"
-              onClick={() => moveStep(index, -1)}
-            >
-              Up
-            </button>
-            <button
-              type="button"
-              className="admin-action secondary"
-              onClick={() => moveStep(index, 1)}
-            >
-              Down
-            </button>
-            <button
-              type="button"
-              className="admin-action danger"
-              onClick={() =>
-                setForm((prev) => ({
-                  ...prev,
-                  steps: prev.steps.filter((_, i) => i !== index),
-                }))
-              }
-            >
-              Remove
-            </button>
-          </div>
         </div>
       ))}
-      <button
-        type="button"
-        className="admin-action success"
-        onClick={() =>
-          setForm((prev) => ({ ...prev, steps: [...prev.steps, emptyStepRow()] }))
-        }
-      >
-        Add Step
-      </button>
 
       <div className="inline-row">
         <button

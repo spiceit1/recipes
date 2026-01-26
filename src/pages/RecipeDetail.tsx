@@ -13,6 +13,59 @@ type RecipeDetailProps = {
   adminMode: boolean;
 };
 
+const renderInstructionText = (text: string) => {
+  const lines = text.split(/\r?\n/);
+  const nodes: JSX.Element[] = [];
+  let bullets: string[] = [];
+  let keyIndex = 0;
+
+  const flushBullets = () => {
+    if (!bullets.length) {
+      return;
+    }
+    const items = bullets;
+    bullets = [];
+    nodes.push(
+      <ul className="instruction-list" key={`bullets-${keyIndex++}`}>
+        {items.map((item, index) => (
+          <li key={`bullet-${keyIndex++}-${index}`}>{item}</li>
+        ))}
+      </ul>
+    );
+  };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushBullets();
+      return;
+    }
+    if (/^[-•]\s+/.test(trimmed)) {
+      bullets.push(trimmed.replace(/^[-•]\s+/, ""));
+      return;
+    }
+    flushBullets();
+    const numberMatch = trimmed.match(/^\d+\.\s+.+$/);
+    if (numberMatch) {
+      nodes.push(
+        <p className="instruction-title" key={`line-${keyIndex++}`}>
+          <strong>{trimmed}</strong>
+        </p>
+      );
+      return;
+    }
+    nodes.push(
+      <p className="instruction-line" key={`line-${keyIndex++}`}>
+        {trimmed}
+      </p>
+    );
+  });
+
+  flushBullets();
+
+  return <div className="instruction-text">{nodes}</div>;
+};
+
 type CommentFormState = {
   name: string;
   email: string;
@@ -172,18 +225,18 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
         </div>
         <div className="instructions">
           <h2>Instructions</h2>
-          <ol>
+          <div>
             {(recipe.steps || [])
               .sort((a, b) => a.stepNumber - b.stepNumber)
               .map((step) => (
-                <li key={step.id}>
-                  <p>{step.text}</p>
+                <div key={step.id} className="instruction-block">
+                  {renderInstructionText(step.text)}
                   {step.imageUrl ? (
                     <img src={step.imageUrl} alt="" />
                   ) : null}
-                </li>
+                </div>
               ))}
-          </ol>
+          </div>
         </div>
       </div>
 
