@@ -57,7 +57,7 @@ INSERT INTO "Ingredient" ("id", "name", "createdAt", "updatedAt") VALUES
   ('ing_pecans__crushed', 'pecans, crushed', NOW(), NOW()),
   ('ing_potatoes', 'potatoes', NOW(), NOW()),
   ('ing_salt', 'salt', NOW(), NOW()),
-  ('ing_salt_and_pepper', 'salt and pepper', NOW(), NOW()),
+  ('ing_salt_and_pepper', 'Salt and pepper', NOW(), NOW()),
   ('ing_sea_salt', 'sea salt', NOW(), NOW()),
   ('ing_spinach', 'spinach', NOW(), NOW()),
   ('ing_split_peas', 'split peas', NOW(), NOW()),
@@ -137,7 +137,7 @@ INSERT INTO "RecipeIngredient" ("id", "recipeId", "ingredientId", "measurementId
   ('ri_ratatouille_7', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'bell peppers, diced'), NULL, 2, 'Sauce', NOW(), NOW()),
   ('ri_ratatouille_8', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'onion, diced'), NULL, 1, 'Sauce', NOW(), NOW()),
   ('ri_ratatouille_9', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'crushed tomatoes'), (SELECT "id" FROM "Measurement" WHERE "name" = 'oz'), 28, 'Sauce', NOW(), NOW()),
-  ('ri_ratatouille_10', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'salt and pepper'), NULL, 0, 'Sauce', NOW(), NOW()),
+  ('ri_ratatouille_10', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "id" = 'ing_salt_and_pepper'), NULL, 0, 'Sauce', NOW(), NOW()),
   ('ri_ratatouille_11', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'fresh chopped basil'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tbsp'), 2, 'Sauce', NOW(), NOW()),
   ('ri_ratatouille_12', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'chopped basil'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tbsp'), 2, 'Topping', NOW(), NOW()),
   ('ri_ratatouille_13', 'recipe_ratatouille', (SELECT "id" FROM "Ingredient" WHERE "name" = 'garlic, minced'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tsp'), 1, 'Topping', NOW(), NOW()),
@@ -228,7 +228,7 @@ INSERT INTO "RecipeIngredient" ("id", "recipeId", "ingredientId", "measurementId
   ('ri_split_pea_soup_6', 'recipe_split_pea_soup', (SELECT "id" FROM "Ingredient" WHERE "name" = 'water'), (SELECT "id" FROM "Measurement" WHERE "name" = 'cups'), 6, NULL, NOW(), NOW()),
   ('ri_split_pea_soup_7', 'recipe_split_pea_soup', (SELECT "id" FROM "Ingredient" WHERE "name" = 'split peas'), (SELECT "id" FROM "Measurement" WHERE "name" = 'bag'), 1, NULL, NOW(), NOW()),
   ('ri_split_pea_soup_8', 'recipe_split_pea_soup', (SELECT "id" FROM "Ingredient" WHERE "name" = 'bay leaf'), NULL, 1, NULL, NOW(), NOW()),
-  ('ri_split_pea_soup_9', 'recipe_split_pea_soup', (SELECT "id" FROM "Ingredient" WHERE "name" = 'salt and pepper'), NULL, 0, NULL, NOW(), NOW())
+  ('ri_split_pea_soup_9', 'recipe_split_pea_soup', (SELECT "id" FROM "Ingredient" WHERE "id" = 'ing_salt_and_pepper'), NULL, 0, NULL, NOW(), NOW())
 ON CONFLICT ("id") DO UPDATE SET
   "ingredientId" = EXCLUDED."ingredientId",
   "measurementId" = EXCLUDED."measurementId",
