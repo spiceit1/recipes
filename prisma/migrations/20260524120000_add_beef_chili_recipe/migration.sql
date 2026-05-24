@@ -43,22 +43,22 @@ ON CONFLICT ("id") DO UPDATE SET
   "updatedAt" = NOW();
 
 INSERT INTO "RecipeIngredient" ("id", "recipeId", "ingredientId", "measurementId", "amount", "section", "createdAt", "updatedAt") VALUES
-  ('ri_beef_chili_oil', 'recipe_beef_chili', 'ing_oil_to_coat_pot', NULL, 0, NULL, NOW(), NOW()),
-  ('ri_beef_chili_ground_beef', 'recipe_beef_chili', 'ing_ground_beef', 'meas_pounds', 2, NULL, NOW(), NOW()),
-  ('ri_beef_chili_onion', 'recipe_beef_chili', 'ing_onion_diced', 'meas_medium', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_jalapeno', 'recipe_beef_chili', 'ing_jalapeno_diced', NULL, 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_garlic', 'recipe_beef_chili', 'ing_garlic_minced', 'meas_cloves', 4, NULL, NOW(), NOW()),
-  ('ri_beef_chili_tomato_paste', 'recipe_beef_chili', 'ing_tomato_paste', 'meas_tbsp', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_chili_powder', 'recipe_beef_chili', 'ing_chili_powder', 'meas_tbsp', 1.5, NULL, NOW(), NOW()),
-  ('ri_beef_chili_cumin', 'recipe_beef_chili', 'ing_cumin', 'meas_tsp', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_garlic_powder', 'recipe_beef_chili', 'ing_garlic_powder', 'meas_tsp', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_salt_pepper', 'recipe_beef_chili', 'ing_salt_and_pepper', NULL, 0, NULL, NOW(), NOW()),
-  ('ri_beef_chili_tomatoes', 'recipe_beef_chili', 'ing_diced_tomatoes', 'meas_10_oz_can', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_stock', 'recipe_beef_chili', 'ing_chicken_stock_range', NULL, 0, NULL, NOW(), NOW()),
-  ('ri_beef_chili_kidney_beans', 'recipe_beef_chili', 'ing_red_kidney_beans', 'meas_15_oz_can', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_black_beans', 'recipe_beef_chili', 'ing_black_beans', 'meas_15_oz_can', 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_bay_leaf', 'recipe_beef_chili', 'ing_bay_leaf', NULL, 1, NULL, NOW(), NOW()),
-  ('ri_beef_chili_lime', 'recipe_beef_chili', 'ing_lime_juice_garnish', NULL, 0, NULL, NOW(), NOW())
+  ('ri_beef_chili_oil', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'Oil to coat pot'), NULL, 0, NULL, NOW(), NOW()),
+  ('ri_beef_chili_ground_beef', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'ground beef'), (SELECT "id" FROM "Measurement" WHERE "name" = 'pounds'), 2, NULL, NOW(), NOW()),
+  ('ri_beef_chili_onion', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'onion, diced'), (SELECT "id" FROM "Measurement" WHERE "name" = 'medium'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_jalapeno', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'jalapeño, diced'), NULL, 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_garlic', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'garlic, minced'), (SELECT "id" FROM "Measurement" WHERE "name" = 'cloves'), 4, NULL, NOW(), NOW()),
+  ('ri_beef_chili_tomato_paste', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'tomato paste'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tbsp'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_chili_powder', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'chili powder'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tbsp'), 1.5, NULL, NOW(), NOW()),
+  ('ri_beef_chili_cumin', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'cumin'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tsp'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_garlic_powder', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'garlic powder'), (SELECT "id" FROM "Measurement" WHERE "name" = 'tsp'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_salt_pepper', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'Salt and pepper'), NULL, 0, NULL, NOW(), NOW()),
+  ('ri_beef_chili_tomatoes', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'diced tomatoes'), (SELECT "id" FROM "Measurement" WHERE "name" = '10-oz can'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_stock', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = '1-2 cups chicken stock'), NULL, 0, NULL, NOW(), NOW()),
+  ('ri_beef_chili_kidney_beans', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'red kidney beans, drained and rinsed'), (SELECT "id" FROM "Measurement" WHERE "name" = '15-oz can'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_black_beans', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'black beans, drained and rinsed'), (SELECT "id" FROM "Measurement" WHERE "name" = '15-oz can'), 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_bay_leaf', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'bay leaf'), NULL, 1, NULL, NOW(), NOW()),
+  ('ri_beef_chili_lime', 'recipe_beef_chili', (SELECT "id" FROM "Ingredient" WHERE "name" = 'Lime juice for garnish'), NULL, 0, NULL, NOW(), NOW())
 ON CONFLICT ("id") DO UPDATE SET
   "ingredientId" = EXCLUDED."ingredientId",
   "measurementId" = EXCLUDED."measurementId",
