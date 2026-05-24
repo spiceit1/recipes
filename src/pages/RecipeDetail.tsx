@@ -6,7 +6,7 @@ import IngredientScaler from "../components/IngredientScaler";
 import ClipboardExporter from "../components/ClipboardExporter";
 import PDFExporter from "../components/PDFExporter";
 import EmptyState from "../components/EmptyState";
-import { getTotalTime, scaleAmount } from "../lib/calculations";
+import { formatIngredientQuantity, getTotalTime, scaleAmount } from "../lib/calculations";
 import type { Recipe } from "../lib/types";
 
 type RecipeDetailProps = {
@@ -203,9 +203,10 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
                 <ul>
                   {group.items.map((item) => (
                     <li key={item.id}>
-                      {`${scaleAmount(item.amount, scale, item.amountText)} ${
-                        item.measurement?.name ? `${item.measurement.name} ` : ""
-                      }${item.ingredient?.name || ""}`.trim()}
+                      {`${formatIngredientQuantity(
+                        scaleAmount(item.amount, scale, item.amountText),
+                        item.measurement?.name
+                      )} ${item.ingredient?.name || ""}`.trim()}
                     </li>
                   ))}
                 </ul>
@@ -215,9 +216,10 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
             <ul>
               {ingredients.map((item) => (
                 <li key={item.id}>
-                  {`${scaleAmount(item.amount, scale, item.amountText)} ${
-                    item.measurement?.name ? `${item.measurement.name} ` : ""
-                  }${item.ingredient?.name || ""}`.trim()}
+                  {`${formatIngredientQuantity(
+                    scaleAmount(item.amount, scale, item.amountText),
+                    item.measurement?.name
+                  )} ${item.ingredient?.name || ""}`.trim()}
                 </li>
               ))}
             </ul>

@@ -116,3 +116,73 @@ export const scaleAmount = (
   }
   return decimalToFraction(value * Number(scale));
 };
+
+const singularMeasurements: Record<string, string> = {
+  cups: "cup",
+  cup: "cup",
+  tablespoons: "tablespoon",
+  tablespoon: "tablespoon",
+  teaspoons: "teaspoon",
+  teaspoon: "teaspoon",
+};
+
+const pluralMeasurements: Record<string, string> = {
+  cup: "cups",
+  cups: "cups",
+  tablespoon: "tablespoons",
+  tablespoons: "tablespoons",
+  teaspoon: "teaspoons",
+  teaspoons: "teaspoons",
+};
+
+const singularizeMeasurement = (measurement: string): string => {
+  const trimmed = measurement.trim();
+  const mapped = singularMeasurements[trimmed.toLowerCase()];
+  if (mapped) {
+    return mapped;
+  }
+  if (trimmed.toLowerCase().endsWith("s") && trimmed.length > 1) {
+    return trimmed.slice(0, -1);
+  }
+  return trimmed;
+};
+
+const pluralizeMeasurement = (measurement: string): string => {
+  const trimmed = measurement.trim();
+  const mapped = pluralMeasurements[trimmed.toLowerCase()];
+  if (mapped) {
+    return mapped;
+  }
+  if (!trimmed || trimmed.toLowerCase().endsWith("s")) {
+    return trimmed;
+  }
+  return `${trimmed}s`;
+};
+
+export const formatMeasurementForAmount = (
+  amount: string | number | undefined | null,
+  measurement: string | undefined | null
+): string => {
+  const trimmedMeasurement = measurement?.trim() || "";
+  if (!trimmedMeasurement) {
+    return "";
+  }
+
+  const parsed = parseFractionAmount(amount === undefined || amount === null ? "" : String(amount));
+  if (parsed !== null && parsed <= 1) {
+    return singularizeMeasurement(trimmedMeasurement);
+  }
+  return pluralizeMeasurement(trimmedMeasurement);
+};
+
+export const formatIngredientQuantity = (
+  amount: string | number | undefined | null,
+  measurement: string | undefined | null
+): string => {
+  const displayAmount = amount === undefined || amount === null ? "" : String(amount).trim();
+  if (!displayAmount) {
+    return "";
+  }
+  const displayMeasurement = formatMeasurementForAmount(displayAmount, measurement);
+  return `${displayAmount} ${displayMeasurement}`.trim();
+};
