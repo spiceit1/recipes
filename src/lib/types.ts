@@ -23,6 +23,7 @@ export type RecipeIngredient = {
   ingredientId?: string;
   measurementId?: string | null;
   amount?: number;
+  amountText?: string | null;
   section?: string | null;
   ingredient?: Ingredient | null;
   measurement?: Measurement | null;
@@ -97,6 +98,7 @@ export type RecipePayload = {
     ingredientId: string;
     measurementId: string | null;
     amount: number;
+    amountText: string;
     section?: string | null;
   }>;
   steps: Array<{

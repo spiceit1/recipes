@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
 import { type Recipe } from "../lib/types";
+import { scaleAmount } from "../lib/calculations";
 
 type PDFExporterProps = {
   recipe?: Recipe | null;
@@ -58,7 +59,7 @@ const PDFExporter = ({ recipe }: PDFExporterProps) => {
     doc.setFontSize(11);
     (recipe.ingredients || []).forEach((item) => {
       doc.text(
-        `- ${item.amount} ${
+        `- ${scaleAmount(item.amount, 1, item.amountText)} ${
           item.measurement?.name ? `${item.measurement.name} ` : ""
         }${item.ingredient?.name || ""}`.trim(),
         14,

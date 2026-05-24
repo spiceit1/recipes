@@ -1,4 +1,5 @@
 import { type Recipe } from "../lib/types";
+import { scaleAmount } from "../lib/calculations";
 
 type ClipboardExporterProps = {
   recipe?: Recipe | null;
@@ -42,7 +43,7 @@ const ClipboardExporter = ({ recipe }: ClipboardExporterProps) => {
       "",
       "Ingredients:",
       ...ingredients.map((item) =>
-        `- ${item.amount} ${
+        `- ${scaleAmount(item.amount, 1, item.amountText)} ${
           item.measurement?.name ? `${item.measurement.name} ` : ""
         }${item.ingredient?.name || ""}`.trim()
       ),

@@ -3,6 +3,7 @@ import { toast } from "react-hot-toast";
 import { api } from "../lib/api";
 import ImageUploader from "./ImageUploader";
 import { CATEGORIES } from "../lib/constants";
+import { normalizeAmountInput } from "../lib/calculations";
 import type {
   Ingredient,
   Measurement,
@@ -52,7 +53,7 @@ const buildFormState = (data?: Recipe | null): RecipeFormState => ({
           ingredientName: item.ingredient?.name || "",
           measurementId: item.measurementId || "",
           measurementName: item.measurement?.name || "",
-          amount: item.amount ?? "",
+          amount: item.amountText || item.amount || "",
         });
         return rows;
       }, [])
@@ -320,10 +321,12 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
         if (!row.ingredientId) {
           return acc;
         }
+        const normalizedAmount = normalizeAmountInput(row.amount);
         acc.push({
           ingredientId: row.ingredientId,
           measurementId: row.measurementId || null,
-          amount: Number(row.amount || 0),
+          amount: normalizedAmount.amount,
+          amountText: normalizedAmount.amountText,
           section: currentSection || null,
         });
         return acc;
@@ -474,11 +477,9 @@ const RecipeForm = ({ recipe, onSave, onCancel }: RecipeFormProps) => {
               ) : null}
             </div>
             <input
-              type="number"
-              min="0"
-              step="0.01"
+              type="text"
               className="qty-input"
-              placeholder="Qty"
+              placeholder="Qty, e.g. 1/3"
               value={row.amount}
               onChange={(event) => updateIngredient(index, "amount", event.target.value)}
             />

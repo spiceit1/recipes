@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "node tests/calculations.test.mjs",
     "netlify:dev": "netlify dev",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",

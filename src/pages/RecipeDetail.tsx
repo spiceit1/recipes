@@ -203,7 +203,7 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
                 <ul>
                   {group.items.map((item) => (
                     <li key={item.id}>
-                      {`${scaleAmount(item.amount, scale)} ${
+                      {`${scaleAmount(item.amount, scale, item.amountText)} ${
                         item.measurement?.name ? `${item.measurement.name} ` : ""
                       }${item.ingredient?.name || ""}`.trim()}
                     </li>
@@ -215,7 +215,7 @@ const RecipeDetail = ({ adminMode }: RecipeDetailProps) => {
             <ul>
               {ingredients.map((item) => (
                 <li key={item.id}>
-                  {`${scaleAmount(item.amount, scale)} ${
+                  {`${scaleAmount(item.amount, scale, item.amountText)} ${
                     item.measurement?.name ? `${item.measurement.name} ` : ""
                   }${item.ingredient?.name || ""}`.trim()}
                 </li>
