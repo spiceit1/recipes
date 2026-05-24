@@ -122,8 +122,10 @@ const singularMeasurements: Record<string, string> = {
   cup: "cup",
   tablespoons: "tablespoon",
   tablespoon: "tablespoon",
+  tbsp: "tablespoon",
   teaspoons: "teaspoon",
   teaspoon: "teaspoon",
+  tsp: "teaspoon",
 };
 
 const pluralMeasurements: Record<string, string> = {
@@ -131,8 +133,10 @@ const pluralMeasurements: Record<string, string> = {
   cups: "cups",
   tablespoon: "tablespoons",
   tablespoons: "tablespoons",
+  tbsp: "tablespoons",
   teaspoon: "teaspoons",
   teaspoons: "teaspoons",
+  tsp: "teaspoons",
 };
 
 const singularizeMeasurement = (measurement: string): string => {
