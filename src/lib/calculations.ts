@@ -120,23 +120,23 @@ export const scaleAmount = (
 const singularMeasurements: Record<string, string> = {
   cups: "cup",
   cup: "cup",
-  tablespoons: "tablespoon",
-  tablespoon: "tablespoon",
-  tbsp: "tablespoon",
-  teaspoons: "teaspoon",
-  teaspoon: "teaspoon",
-  tsp: "teaspoon",
+  tablespoons: "tbsp",
+  tablespoon: "tbsp",
+  tbsp: "tbsp",
+  teaspoons: "tsp",
+  teaspoon: "tsp",
+  tsp: "tsp",
 };
 
 const pluralMeasurements: Record<string, string> = {
   cup: "cups",
   cups: "cups",
-  tablespoon: "tablespoons",
-  tablespoons: "tablespoons",
-  tbsp: "tablespoons",
-  teaspoon: "teaspoons",
-  teaspoons: "teaspoons",
-  tsp: "teaspoons",
+  tablespoon: "tbsp",
+  tablespoons: "tbsp",
+  tbsp: "tbsp",
+  teaspoon: "tsp",
+  teaspoons: "tsp",
+  tsp: "tsp",
 };
 
 const singularizeMeasurement = (measurement: string): string => {

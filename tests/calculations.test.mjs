@@ -22,12 +22,12 @@ assert.equal(formatIngredientQuantity("1", "cups"), "1 cup", "exactly 1 uses sin
 assert.equal(formatIngredientQuantity("1/3", "cups"), "1/3 cup", "fractions under 1 use singular measurement");
 assert.equal(formatIngredientQuantity("1 1/3", "cups"), "1 1/3 cups", "amounts over 1 use plural measurement");
 assert.equal(formatIngredientQuantity("2", "cups"), "2 cups", "amounts over 1 keep plural measurement");
-assert.equal(formatIngredientQuantity("1/2", "tablespoons"), "1/2 tablespoon", "other measurements singularize under 1");
-assert.equal(formatIngredientQuantity("1 1/2", "teaspoons"), "1 1/2 teaspoons", "other measurements pluralize over 1");
-assert.equal(formatIngredientQuantity("1", "tbsp"), "1 tablespoon", "tbsp abbreviation expands to singular tablespoon at 1");
-assert.equal(formatIngredientQuantity("7", "tbsp"), "7 tablespoons", "tbsp abbreviation expands to plural tablespoons over 1");
-assert.equal(formatIngredientQuantity("1/2", "tsp"), "1/2 teaspoon", "tsp abbreviation expands to singular teaspoon under 1");
-assert.equal(formatIngredientQuantity("2", "tsp"), "2 teaspoons", "tsp abbreviation expands to plural teaspoons over 1");
+assert.equal(formatIngredientQuantity("1/2", "tablespoons"), "1/2 tbsp", "tablespoon names display as tbsp under 1");
+assert.equal(formatIngredientQuantity("1 1/2", "teaspoons"), "1 1/2 tsp", "teaspoon names display as tsp over 1");
+assert.equal(formatIngredientQuantity("1", "tbsp"), "1 tbsp", "tbsp abbreviation stays tbsp at 1");
+assert.equal(formatIngredientQuantity("7", "tbsp"), "7 tbsp", "tbsp abbreviation stays tbsp over 1");
+assert.equal(formatIngredientQuantity("1/2", "tsp"), "1/2 tsp", "tsp abbreviation stays tsp under 1");
+assert.equal(formatIngredientQuantity("2", "tsp"), "2 tsp", "tsp abbreviation stays tsp over 1");
 assert.equal(formatIngredientQuantity("", "cups"), "", "blank amounts do not show a measurement by itself");
 
 console.log("calculations tests passed");
