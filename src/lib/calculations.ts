@@ -13,5 +13,8 @@ export const scaleAmount = (amount: number | undefined, scale: number): string =
   if (!Number.isFinite(value)) {
     return "0";
   }
+  if (value === 0) {
+    return "";
+  }
   return Number.isInteger(value) ? value.toString() : value.toFixed(2);
 };
