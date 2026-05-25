@@ -104,17 +104,38 @@ export const normalizeAmountInput = (amount: string | number | undefined | null)
   };
 };
 
+const parseRangeAmount = (amount: string): [number, number] | null => {
+  const trimmed = amount.trim();
+  const range = trimmed.match(/^(.+?)\s*[-–—]\s*(.+)$/);
+  if (!range) {
+    return null;
+  }
+
+  const start = parseFractionAmount(range[1]);
+  const end = parseFractionAmount(range[2]);
+  if (start === null || end === null) {
+    return null;
+  }
+  return [start, end];
+};
+
 export const scaleAmount = (
   amount: string | number | undefined | null,
   scale: number,
   amountText?: string | null
 ): string => {
   const displayAmount = amountText?.trim() || (amount === undefined || amount === null ? "" : String(amount));
+  const multiplier = Number(scale);
+  const range = parseRangeAmount(displayAmount);
+  if (range) {
+    return `${decimalToFraction(range[0] * multiplier)}-${decimalToFraction(range[1] * multiplier)}`;
+  }
+
   const value = parseFractionAmount(displayAmount);
   if (value === null) {
     return displayAmount;
   }
-  return decimalToFraction(value * Number(scale));
+  return decimalToFraction(value * multiplier);
 };
 
 const singularMeasurements: Record<string, string> = {

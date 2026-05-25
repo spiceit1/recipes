@@ -16,6 +16,10 @@ assert.equal(scaleAmount("1/3", 1), "1/3", "keeps typed simple fractions unchang
 assert.equal(scaleAmount("1 1/4", 1), "1 1/4", "keeps typed mixed fractions unchanged at 1x scale");
 assert.equal(scaleAmount("1/3", 2), "2/3", "scales simple fractions as fractions");
 assert.equal(scaleAmount("1 1/4", 2), "2 1/2", "scales mixed fractions as fractions");
+assert.equal(scaleAmount("3-4", 2), "6-8", "scales simple numeric ranges");
+assert.equal(scaleAmount("2-2.5", 2), "4-5", "scales decimal ranges");
+assert.equal(scaleAmount("1/2-1", 2), "1-2", "scales fraction ranges");
+assert.equal(scaleAmount("3–4", 2), "6-8", "scales en-dash ranges");
 assert.equal(scaleAmount("0", 1), "", "zero amount remains blank for free-form lines");
 
 assert.equal(formatIngredientQuantity("1", "cups"), "1 cup", "exactly 1 uses singular measurement");
