@@ -25,7 +25,7 @@ export const handler: Handler = async (event) => {
       imageUrl: true,
       published: true,
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { name: "asc" },
   });
 
   return jsonResponse(200, recipes);

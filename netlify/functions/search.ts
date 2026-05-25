@@ -24,7 +24,7 @@ export const handler: Handler = async (event) => {
         },
       ],
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { name: "asc" },
     select: {
       id: true,
       name: true,

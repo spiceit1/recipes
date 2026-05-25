@@ -11,6 +11,9 @@ type HomeProps = {
   searchQuery: string;
 };
 
+const sortRecipesByName = (items: RecipeSummary[]) =>
+  [...items].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
 const Home = ({ searchQuery }: HomeProps) => {
   const cacheKey = searchQuery ? `public:search:${searchQuery}` : "public:all";
   const cachedRecipes = getCachedRecipes(cacheKey);
@@ -55,9 +58,9 @@ const Home = ({ searchQuery }: HomeProps) => {
 
   const visibleRecipes = useMemo(() => {
     if (!activeCategory) {
-      return recipes;
+      return sortRecipesByName(recipes);
     }
-    return recipes.filter((recipe) => recipe.category === activeCategory);
+    return sortRecipesByName(recipes.filter((recipe) => recipe.category === activeCategory));
   }, [recipes, activeCategory]);
 
   const groupedRecipes = useMemo(() => {
@@ -66,11 +69,11 @@ const Home = ({ searchQuery }: HomeProps) => {
     }
     const groups = CATEGORIES.map((category) => ({
       category,
-      items: recipes.filter((recipe) => recipe.category === category),
+      items: sortRecipesByName(recipes.filter((recipe) => recipe.category === category)),
     })).filter((group) => group.items.length);
-    const uncategorized = recipes.filter(
+    const uncategorized = sortRecipesByName(recipes.filter(
       (recipe) => !recipe.category || !CATEGORIES.includes(recipe.category)
-    );
+    ));
     if (uncategorized.length) {
       groups.push({ category: "Uncategorized", items: uncategorized });
     }

@@ -8,7 +8,7 @@ export const handler: Handler = async (event) => {
 
   const recipes = await prisma.recipe.findMany({
     where: includeUnpublished ? {} : { published: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: { name: "asc" },
     select: {
       id: true,
       name: true,
